@@ -61,20 +61,23 @@
             transform-origin: top center;
         }
 
-        /* ✨ UPDATED: The fix for the stretched image is here */
-        .base-image {
+        /* ✨ UPDATED: Switched from an <img> tag to a div with background properties */
+        .base-image-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Fills the container while keeping aspect ratio (no stretching) */
-            object-position: center; /* Centers the image if cropping is needed */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         
         #overlay-design {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
+            /* Prevents the overlay from capturing clicks meant for text layers */
+            pointer-events: none;
         }
         
         .text-layer {
@@ -130,8 +133,9 @@
     <div class="app-body">
         <div id="canvas-wrapper">
             <div id="design-container">
-                <img id="base-image" class="base-image" src="https://i.ibb.co/C5QgVZKN/man2.jpg" alt="خلفية النعي">
-                <!-- ✨ UPDATED: The new overlay image URL is here -->
+                <!-- ✨ UPDATED: This is now a DIV, with the default image set via inline style -->
+                <div id="base-image" class="base-image-container" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
+                
                 <img id="overlay-design" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png" alt="تصميم النعي">
                 <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
                 <div id="text-layer-2" class="text-layer">انقر لاختيار التاريخ</div>
@@ -151,6 +155,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // All the setup and event listeners remain the same
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
             const datepickerProxy = document.getElementById('datepicker-proxy');
@@ -202,15 +207,20 @@
             window.addEventListener('resize', scaleCanvas);
         });
 
+        // ✨ UPDATED: This function now targets the DIV's background image
         function setImage(imageUrl) {
-            document.getElementById('base-image').src = imageUrl;
+            const bgContainer = document.getElementById('base-image');
+            bgContainer.style.backgroundImage = `url('${imageUrl}')`;
         }
 
         function uploadImage(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) { setImage(e.target.result); }
+                reader.onload = function(e) { 
+                    // e.target.result contains the base64 data URL
+                    setImage(e.target.result); 
+                }
                 reader.readAsDataURL(file);
             }
         }

@@ -16,10 +16,10 @@
 
     <style>
         :root {
-            --dark-bg: #222;
+            --dark-bg: #2c3e50;
+            --app-bg: #222;
             --panel-bg: #333;
             --phone-border: #111;
-            --text-light: #ecf0f1;
             --btn-gray: #555;
             --btn-green: #27ae60;
         }
@@ -33,38 +33,34 @@
             overflow: hidden;
             font-family: 'Cairo', sans-serif;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            /* ✨ This is for centering the phone frame on desktop */
             justify-content: center;
         }
 
-        /* ✨ NEW: This frame wraps the entire app */
         .phone-frame {
-            background-color: var(--dark-bg);
+            background-color: var(--app-bg);
             display: flex;
             flex-direction: column;
             width: 100%;
             height: 100%;
             position: relative;
-                        align-items: center;
-
         }
 
         .app-body {
             flex-grow: 1;
             width: 100%;
             overflow-y: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            overflow-x: auto; 
             padding: 15px 0;
             box-sizing: border-box;
         }
 
+        /* ✨ THE FINAL FIX IS HERE */
         #canvas-wrapper {
             position: relative;
             flex-shrink: 0;
+            float: right; /* This forces the element to the right edge of the container */
+            /* The margin is set by the scaling function now */
         }
         
         #design-container {
@@ -73,7 +69,7 @@
             height: 1500px;
             overflow: hidden;
             background-color: #000;
-            transform-origin: top center;
+            transform-origin: top right; /* Align scaling from the top right corner */
         }
 
         .base-image-container {
@@ -130,11 +126,10 @@
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
 
-        /* ✨ NEW: Media Query to apply phone frame styles only on large screens */
-        @media (min-width: 768px) {
+        @media (min-width: 500px) {
             .phone-frame {
-                width: 414px; /* Common iPhone width */
-                height: 800px; /* Common phone height */
+                width: 414px;
+                height: 800px;
                 border: 12px solid var(--phone-border);
                 border-radius: 40px;
                 box-shadow: 0 15px 50px rgba(0,0,0,0.6);
@@ -162,7 +157,6 @@
         <div id="controls">
             <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg')">رجل</button>
             <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg')">امرأة</button>
-            <!-- ✨ UPDATED: Quran button now sets an image -->
             <button class="control-btn" onclick="setImage('https://i.ibb.co/8nLfvHYj/quran.png')">قرآن</button>
             <label for="custom-image-input" class="control-btn">مخصص</label>
             <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
@@ -217,11 +211,15 @@
             const ORIGINAL_HEIGHT = 1500;
 
             function scaleCanvas() {
-                const availableWidth = appBody.clientWidth - 20;
+                const availableWidth = appBody.clientWidth;
                 const scale = availableWidth / ORIGINAL_WIDTH;
+                
                 designContainer.style.transform = `scale(${scale})`;
                 canvasWrapper.style.height = (ORIGINAL_HEIGHT * scale) + 'px';
                 canvasWrapper.style.width = (ORIGINAL_WIDTH * scale) + 'px';
+                
+                // Add a right margin to create some space from the edge
+                canvasWrapper.style.marginRight = '10px';
             }
             
             scaleCanvas();

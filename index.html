@@ -16,19 +16,16 @@
 
     <style>
         :root {
-            --dark-bg: #222; /* Darker background for app feel */
+            --dark-bg: #222;
             --panel-bg: #333;
             --text-light: #ecf0f1;
             --btn-gray: #555;
             --btn-green: #27ae60;
         }
 
-        /* ✨ NEW: App-like structure */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent scrolling the whole page */
+            height: 100%; margin: 0; padding: 0;
+            overflow: hidden;
             background-color: var(--dark-bg);
         }
 
@@ -39,34 +36,32 @@
             align-items: center;
         }
 
-        /* Main container for the canvas, takes up all available space */
         .app-body {
             flex-grow: 1;
             width: 100%;
-            overflow-y: auto; /* Allow scrolling of the design if needed */
+            overflow-y: auto;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align canvas to the top */
-            padding: 10px 0;
+            align-items: flex-start;
+            padding: 15px 0;
+            box-sizing: border-box;
         }
-        
-        /* ✨ NEW: Responsive canvas using aspect-ratio trick */
+
+        /* ✨ NEW: Wrapper's job is just to center the canvas and manage its scaled height */
         #canvas-wrapper {
-            width: 95%; /* Take up most of the screen width */
-            max-width: 500px; /* Set a max width for tablets/desktops */
             position: relative;
-            height: 0;
-            /* Maintain aspect ratio: (1500 / 1083) * 100% */
-            padding-top: 138.52%; 
+            flex-shrink: 0; /* Prevent shrinking */
         }
         
+        /* ✨ UPDATED: Back to fixed pixel dimensions for perfect internal layout */
         #design-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: relative;
+            width: 1083px;
+            height: 1500px;
+            overflow: hidden;
             background-color: #000;
+            /* ✨ CRITICAL: This ensures scaling happens from the top center */
+            transform-origin: top center;
         }
 
         .base-image, #overlay-design {
@@ -76,33 +71,30 @@
         
         .text-layer {
             position: absolute;
-            /* ✨ NEW: Positioning and width are now percentage-based */
-            width: 64.63%; /* (700 / 1083) * 100% */
+            width: 700px;
+            height: 100px;
             left: 50%;
             transform: translateX(-50%);
-            text-align: center; color: white;
-            z-index: 20; font-family: 'Cairo', sans-serif;
+            text-align: center; color: white; z-index: 20;
+            font-family: 'Cairo', sans-serif;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             display: flex; align-items: center; justify-content: center;
-            padding: 0 1%; box-sizing: border-box;
+            padding: 0 10px; box-sizing: border-box;
         }
 
         #text-layer-1 {
-            top: 80%; /* (1200 / 1500) * 100% */
-            height: 6.6%; /* (100 / 1500) * 100% */
-            font-size: 5vw; /* ✨ Responsive font size based on viewport width */
+            top: 1200px;
+            font-size: 55px; /* Max font size */
             font-weight: 700;
             white-space: nowrap;
         }
 
         #text-layer-2 {
-            top: 85.33%; /* (1280 / 1500) * 100% */
-            height: 6.6%;
-            font-size: 4vw; /* ✨ Responsive font size */
+            top: 1280px;
+            font-size: 40px;
             cursor: pointer;
         }
-
-        /* ✨ NEW: Bottom toolbar for controls */
+        
         #controls {
             width: 100%;
             background-color: var(--panel-bg);
@@ -111,27 +103,18 @@
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0; /* Prevent the toolbar from shrinking */
+            flex-shrink: 0;
         }
 
         .control-btn {
             background-color: var(--btn-gray); color: white; border: none; padding: 10px;
             border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px;
             cursor: pointer; transition: background-color 0.3s ease;
-            flex-grow: 1; /* Make buttons share space */
-            margin: 0 5px;
-            max-width: 150px;
+            flex-grow: 1; margin: 0 5px; max-width: 150px;
         }
         
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
-        
-        /* Media query for larger screens to make it look good, not just stretched */
-        @media (min-width: 768px) {
-            #text-layer-1 { font-size: 38px; } /* Fixed font size for desktop */
-            #text-layer-2 { font-size: 30px; }
-        }
-
     </style>
 </head>
 <body>
@@ -160,18 +143,19 @@
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
             
-            // ✨ NEW: Font scaling logic using transform for better results
-            function adjustFontScaling() {
-                // Reset transform to get the real scrollWidth
-                nameLayer.style.transform = 'scaleX(1)';
-                
-                const isOverflowing = nameLayer.scrollWidth > nameLayer.clientWidth;
-                if (isOverflowing) {
-                    const scale = nameLayer.clientWidth / nameLayer.scrollWidth;
-                    nameLayer.style.transform = `scaleX(${scale})`;
+            // Re-implementing the font-size reduction logic
+            const MAX_FONT_SIZE = 55;
+            const MIN_FONT_SIZE = 20;
+            function adjustFontSize() {
+                let currentSize = MAX_FONT_SIZE;
+                nameLayer.style.fontSize = currentSize + 'px';
+                while (nameLayer.scrollWidth > nameLayer.clientWidth && currentSize > MIN_FONT_SIZE) {
+                    currentSize--;
+                    nameLayer.style.fontSize = currentSize + 'px';
                 }
             }
-            nameLayer.addEventListener('input', adjustFontScaling);
+            nameLayer.addEventListener('input', adjustFontSize);
+            adjustFontSize();
 
             flatpickr(dateLayer, {
                 locale: "ar", theme: "dark", dateFormat: "Y-m-d",
@@ -182,6 +166,28 @@
                     }
                 },
             });
+
+            // ✨ NEW: The definitive scaling logic
+            const appBody = document.querySelector('.app-body');
+            const canvasWrapper = document.getElementById('canvas-wrapper');
+            const designContainer = document.getElementById('design-container');
+            const ORIGINAL_WIDTH = 1083;
+            const ORIGINAL_HEIGHT = 1500;
+
+            function scaleCanvas() {
+                // Use the width of the scrollable area, minus some padding
+                const availableWidth = appBody.clientWidth - 20;
+                
+                const scale = availableWidth / ORIGINAL_WIDTH;
+
+                designContainer.style.transform = `scale(${scale})`;
+                // Set wrapper height and width to match the scaled element
+                canvasWrapper.style.height = (ORIGINAL_HEIGHT * scale) + 'px';
+                canvasWrapper.style.width = (ORIGINAL_WIDTH * scale) + 'px';
+            }
+            
+            scaleCanvas();
+            window.addEventListener('resize', scaleCanvas);
         });
 
         function setImage(imageUrl) {
@@ -203,7 +209,12 @@
             downloadButton.innerText = 'تحضير...';
             downloadButton.disabled = true;
 
-            html2canvas(designContainer, { useCORS: true, allowTaint: true, scale: 3 }).then(canvas => {
+            html2canvas(designContainer, { 
+                useCORS: true, 
+                allowTaint: true, 
+                // Render at a higher resolution for quality
+                scale: 2 
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'obituary-design.png';
                 link.href = canvas.toDataURL('image/png');

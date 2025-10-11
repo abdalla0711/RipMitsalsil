@@ -28,15 +28,9 @@
             background-color: var(--dark-bg);
         }
         
-        /* ✨ UPDATED: Ensures consistent height calculation on all devices */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
         body {
+            height: 100vh; margin: 0; padding: 0;
+            overflow: hidden;
             font-family: 'Cairo', sans-serif;
             display: flex;
             align-items: center;
@@ -50,14 +44,14 @@
             width: 100%;
             height: 100%;
             position: relative;
-            overflow: hidden; /* Prevents proxy from showing */
+            overflow: hidden;
         }
 
         .app-body {
-            flex-grow: 1; /* Takes up all available vertical space */
-            min-height: 0; /* Fix for scrolling inside flex containers */
+            flex-grow: 1;
+            min-height: 0;
             width: 100%;
-            overflow: auto; /* Allows both vertical and horizontal scrolling */
+            overflow: auto;
             padding: 15px 0;
             box-sizing: border-box;
         }
@@ -65,7 +59,7 @@
         #canvas-wrapper {
             position: relative;
             flex-shrink: 0;
-            float: right; /* Keeps the design aligned to the right */
+            float: right;
         }
         
         #design-container {
@@ -89,6 +83,8 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
             pointer-events: none;
+            /* ✨ Adding transition for a smoother hide/show effect */
+            transition: opacity 0.3s ease;
         }
         
         .text-layer {
@@ -101,6 +97,8 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             display: flex; align-items: center; justify-content: center;
             padding: 0 10px; box-sizing: border-box;
+             /* ✨ Adding transition for a smoother position change */
+            transition: top 0.4s ease-out;
         }
 
         #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; white-space: nowrap; }
@@ -115,9 +113,9 @@
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0; /* Prevents the control bar from shrinking */
+            flex-shrink: 0;
             box-sizing: border-box;
-            z-index: 100; /* Ensures it's above other elements */
+            z-index: 100;
         }
 
         .control-btn {
@@ -132,15 +130,11 @@
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
         
-        /* ✨ UPDATED: More robust hiding for the datepicker proxy */
         #datepicker-proxy {
             position: fixed;
-            left: -9999px;
-            top: -9999px;
-            opacity: 0;
-            pointer-events: none;
-            width: 0;
-            height: 0;
+            left: -9999px; top: -9999px;
+            opacity: 0; pointer-events: none;
+            width: 0; height: 0;
         }
 
         @media (min-width: 500px) {
@@ -171,20 +165,21 @@
         </div>
 
         <div id="controls">
-            <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg')">رجل</button>
-            <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg')">امرأة</button>
-            <button class="control-btn" onclick="setImage('https://i.ibb.co/8nLfvHYj/quran.png')">قرآن</button>
+            <!-- ✨ UPDATED: Onclick handlers now pass a 'mode' parameter -->
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg', 'normal')">رجل</button>
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg', 'normal')">امرأة</button>
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/QvTDBv4F/QURAN2.jpg', 'quran')">قرآن</button>
             <label for="custom-image-input" class="control-btn">مخصص</label>
             <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
             <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
         </div>
         
-        <!-- Proxy is now outside the visible structure, but still functional -->
         <input type="text" id="datepicker-proxy">
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // All the element selections and event listeners from before...
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
             const hijriLayer = document.getElementById('text-layer-3');
@@ -235,7 +230,6 @@
                 canvasWrapper.style.height = (ORIGINAL_HEIGHT * scale) + 'px';
                 canvasWrapper.style.width = (ORIGINAL_WIDTH * scale) + 'px';
                 
-                // Add a right margin to create some space from the edge
                 canvasWrapper.style.marginRight = '10px';
             }
             
@@ -243,16 +237,39 @@
             window.addEventListener('resize', scaleCanvas);
         });
 
-        function setImage(imageUrl) {
+        // ✨ UPDATED: The setImage function is now smarter and handles modes
+        function setImage(imageUrl, mode) {
+            // 1. Set the background image
             const bgContainer = document.getElementById('base-image');
             bgContainer.style.backgroundImage = `url('${imageUrl}')`;
+
+            // 2. Get elements that need to change
+            const overlayDesign = document.getElementById('overlay-design');
+            const nameLayer = document.getElementById('text-layer-1');
+            const dateLayer = document.getElementById('text-layer-2');
+            const hijriLayer = document.getElementById('text-layer-3');
+            
+            if (mode === 'quran') {
+                // Apply "Quran Mode" styles
+                overlayDesign.style.opacity = '0';
+                nameLayer.style.top = (1200 - 150) + 'px'; // 900px
+                dateLayer.style.top = (1280 - 150) + 'px'; // 980px
+                hijriLayer.style.top = (1340 - 150) + 'px'; // 1040px
+            } else {
+                // Apply "Normal Mode" styles (reset everything)
+                overlayDesign.style.opacity = '1';
+                nameLayer.style.top = '1200px';
+                dateLayer.style.top = '1280px';
+                hijriLayer.style.top = '1340px';
+            }
         }
 
+        // ✨ UPDATED: The upload function now sets the mode to 'normal'
         function uploadImage(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = e => setImage(e.target.result);
+                reader.onload = e => setImage(e.target.result, 'normal');
                 reader.readAsDataURL(file);
             }
         }

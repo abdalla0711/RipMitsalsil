@@ -28,9 +28,15 @@
             background-color: var(--dark-bg);
         }
         
-        body {
-            height: 100vh; margin: 0; padding: 0;
+        /* ✨ UPDATED: The definitive fix for mobile height issues */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
+        }
+
+        body {
             font-family: 'Cairo', sans-serif;
             display: flex;
             align-items: center;
@@ -83,7 +89,6 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
             pointer-events: none;
-            /* ✨ Adding transition for a smoother hide/show effect */
             transition: opacity 0.3s ease;
         }
         
@@ -97,7 +102,6 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             display: flex; align-items: center; justify-content: center;
             padding: 0 10px; box-sizing: border-box;
-             /* ✨ Adding transition for a smoother position change */
             transition: top 0.4s ease-out;
         }
 
@@ -165,10 +169,9 @@
         </div>
 
         <div id="controls">
-            <!-- ✨ UPDATED: Onclick handlers now pass a 'mode' parameter -->
             <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg', 'normal')">رجل</button>
             <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg', 'normal')">امرأة</button>
-            <button class="control-btn" onclick="setImage('https://i.ibb.co/QvTDBv4F/QURAN2.jpg', 'quran')">قرآن</button>
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/8nLfvHYj/quran.png', 'quran')">قرآن</button>
             <label for="custom-image-input" class="control-btn">مخصص</label>
             <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
             <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
@@ -179,7 +182,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // All the element selections and event listeners from before...
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
             const hijriLayer = document.getElementById('text-layer-3');
@@ -237,26 +239,21 @@
             window.addEventListener('resize', scaleCanvas);
         });
 
-        // ✨ UPDATED: The setImage function is now smarter and handles modes
         function setImage(imageUrl, mode) {
-            // 1. Set the background image
             const bgContainer = document.getElementById('base-image');
             bgContainer.style.backgroundImage = `url('${imageUrl}')`;
 
-            // 2. Get elements that need to change
             const overlayDesign = document.getElementById('overlay-design');
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
             const hijriLayer = document.getElementById('text-layer-3');
             
             if (mode === 'quran') {
-                // Apply "Quran Mode" styles
                 overlayDesign.style.opacity = '0';
-                nameLayer.style.top = (1200 - 150) + 'px'; // 900px
-                dateLayer.style.top = (1280 - 150) + 'px'; // 980px
-                hijriLayer.style.top = (1340 - 150) + 'px'; // 1040px
+                nameLayer.style.top = (1200 - 170) + 'px';
+                dateLayer.style.top = (1280 - 170) + 'px';
+                hijriLayer.style.top = (1340 - 170) + 'px';
             } else {
-                // Apply "Normal Mode" styles (reset everything)
                 overlayDesign.style.opacity = '1';
                 nameLayer.style.top = '1200px';
                 dateLayer.style.top = '1280px';
@@ -264,7 +261,6 @@
             }
         }
 
-        // ✨ UPDATED: The upload function now sets the mode to 'normal'
         function uploadImage(event) {
             const file = event.target.files[0];
             if (file) {

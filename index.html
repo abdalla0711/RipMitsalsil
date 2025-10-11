@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/ar.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -61,13 +61,9 @@
             transform-origin: top center;
         }
 
-        /* ✨ UPDATED: Switched from an <img> tag to a div with background properties */
         .base-image-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -76,14 +72,12 @@
         #overlay-design {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
-            /* Prevents the overlay from capturing clicks meant for text layers */
             pointer-events: none;
         }
         
         .text-layer {
             position: absolute;
             width: 700px;
-            height: 100px;
             left: 50%;
             transform: translateX(-50%);
             text-align: center; color: white; z-index: 20;
@@ -95,6 +89,7 @@
 
         #text-layer-1 {
             top: 1200px;
+            height: 100px;
             font-size: 55px;
             font-weight: 700;
             white-space: nowrap;
@@ -102,8 +97,17 @@
 
         #text-layer-2 {
             top: 1280px;
+            height: 60px; /* Reduced height to make space */
             font-size: 40px;
             cursor: pointer;
+        }
+
+        /* ✨ NEW: Style for the Hijri date layer */
+        #text-layer-3 {
+            top: 1330px; /* Positioned below the Gregorian date */
+            height: 50px;
+            font-size: 30px; /* Slightly smaller font */
+            font-weight: 400;
         }
         
         #controls {
@@ -133,12 +137,13 @@
     <div class="app-body">
         <div id="canvas-wrapper">
             <div id="design-container">
-                <!-- ✨ UPDATED: This is now a DIV, with the default image set via inline style -->
                 <div id="base-image" class="base-image-container" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
-                
                 <img id="overlay-design" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png" alt="تصميم النعي">
+                
                 <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
-                <div id="text-layer-2" class="text-layer">انقر لاختيار التاريخ</div>
+                <div id="text-layer-2" class="text-layer">اختر التاريخ الميلادي</div>
+                <!-- ✨ NEW: Hijri date layer -->
+                <div id="text-layer-3" class="text-layer"></div>
             </div>
         </div>
     </div>
@@ -155,9 +160,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // All the setup and event listeners remain the same
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
+            const hijriLayer = document.getElementById('text-layer-3'); // ✨ Get the new element
             const datepickerProxy = document.getElementById('datepicker-proxy');
             
             const MAX_FONT_SIZE = 55;
@@ -179,8 +184,18 @@
                 dateFormat: "Y-m-d",
                 onChange: function(selectedDates, dateStr) {
                     if (selectedDates.length > 0) {
-                        const dayName = selectedDates[0].toLocaleDateString("ar-EG", { weekday: 'long' });
-                        dateLayer.innerText = `${dayName}، ${dateStr.replace(/-/g, '/')}`;
+                        const selectedDate = selectedDates[0];
+
+                        // ✨ 1. Update Gregorian date (without day name)
+                        dateLayer.innerText = dateStr.replace(/-/g, '/');
+
+                        // ✨ 2. Convert and update Hijri date
+                        const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        hijriLayer.innerText = hijriFormatter.format(selectedDate);
                     }
                 },
             });
@@ -207,7 +222,6 @@
             window.addEventListener('resize', scaleCanvas);
         });
 
-        // ✨ UPDATED: This function now targets the DIV's background image
         function setImage(imageUrl) {
             const bgContainer = document.getElementById('base-image');
             bgContainer.style.backgroundImage = `url('${imageUrl}')`;
@@ -218,7 +232,6 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) { 
-                    // e.target.result contains the base64 data URL
                     setImage(e.target.result); 
                 }
                 reader.readAsDataURL(file);

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة تصميم نعي متقدمة</title>
+
+    <!-- 1. html2canvas library for downloading the design -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- 2. Flatpickr library for the date picker (CSS and JS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ar.js"></script> <!-- Arabic locale for Flatpickr -->
+
+    <!-- 3. Google Fonts for a professional Arabic font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #bdc3c7;
+            border-bottom: 2px solid #34495e;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        #controls {
+            background-color: #34495e; padding: 20px; border-radius: 8px; 
+            margin-bottom: 30px;
+            display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        #design-container {
+            position: relative;
+            width: 1083px;
+            height: 1500px;
+            border: 1px solid #34495e;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            background-color: #000;
+        }
+
+        .base-image {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+        }
+
+        #overlay-design {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+        }
+        
+        .text-layer {
+            position: absolute;
+            width: 700px;
+            height: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            z-index: 20;
+            font-family: 'Cairo', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        #text-layer-1 {
+            top: 1200px;
+            font-size: 55px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        #text-layer-2 {
+            top: 1280px;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        .control-btn {
+            background-color: #7f8c8d; color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; font-family: 'Cairo', sans-serif; font-size: 16px;
+            cursor: pointer; transition: background-color 0.3s ease;
+        }
+
+        .control-btn:hover { background-color: #95a5a6; }
+        #download-btn { background-color: #27ae60; }
+        #download-btn:hover { background-color: #2ecc71; }
+        #download-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        #custom-image-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>أداة تصميم نعي</h1>
+
+        <div id="controls">
+            <!-- ✨ UPDATED man image URL -->
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg')">صورة رجل</button>
+            <!-- ✨ UPDATED woman image URL -->
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg')">صورة امرأة</button>
+            
+            <label for="custom-image-input" class="control-btn">اختر صورة مخصصة</label>
+            <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
+            <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل التصميم</button>
+        </div>
+
+        <div id="design-container">
+            <!-- ✨ UPDATED default image to the new man image -->
+            <img id="base-image" class="base-image" src="https://i.ibb.co/C5QgVZKN/man2.jpg" alt="خلفية النعي">
+            <img id="overlay-design" src="https://i.ibb.co/5hMhXjnS/sketch1760195853528.png" alt="تصميم النعي">
+            
+            <div id="text-layer-1" class="text-layer" contenteditable="true">
+                اسم الفقيد
+            </div>
+            <div id="text-layer-2" class="text-layer">
+                انقر لاختيار التاريخ
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameLayer = document.getElementById('text-layer-1');
+            const dateLayer = document.getElementById('text-layer-2');
+            
+            const MAX_FONT_SIZE = 55;
+            const MIN_FONT_SIZE = 20;
+
+            function adjustFontSize() {
+                let currentSize = MAX_FONT_SIZE;
+                nameLayer.style.fontSize = currentSize + 'px';
+
+                while (nameLayer.scrollWidth > nameLayer.clientWidth && currentSize > MIN_FONT_SIZE) {
+                    currentSize--;
+                    nameLayer.style.fontSize = currentSize + 'px';
+                }
+            }
+
+            nameLayer.addEventListener('input', adjustFontSize);
+            adjustFontSize();
+
+            flatpickr(dateLayer, {
+                locale: "ar",
+                theme: "dark",
+                dateFormat: "Y-m-d",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        const selectedDate = selectedDates[0];
+                        const dayName = selectedDate.toLocaleDateString("ar-EG", { weekday: 'long' });
+                        dateLayer.innerText = `${dayName}، ${dateStr.replace(/-/g, '/')}`;
+                    }
+                },
+            });
+        });
+
+        function setImage(imageUrl) {
+            document.getElementById('base-image').src = imageUrl;
+        }
+
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { setImage(e.target.result); }
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function downloadDesign() {
+            const designContainer = document.getElementById('design-container');
+            const downloadButton = document.getElementById('download-btn');
+            downloadButton.innerText = 'جاري التحضير...';
+            downloadButton.disabled = true;
+
+            // Set a higher DPI for better quality by increasing the scale
+            html2canvas(designContainer, { useCORS: true, allowTaint: true, scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'obituary-design.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                downloadButton.innerText = 'تحميل التصميم';
+                downloadButton.disabled = false;
+            }).catch(error => {
+                console.error('Oops, something went wrong!', error);
+                alert('حدث خطأ أثناء تحميل التصميم. يرجى المحاولة مرة أخرى.');
+                downloadButton.innerText = 'تحميل التصميم';
+                downloadButton.disabled = false;
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -18,22 +18,37 @@
         :root {
             --dark-bg: #222;
             --panel-bg: #333;
+            --phone-border: #111;
             --text-light: #ecf0f1;
             --btn-gray: #555;
             --btn-green: #27ae60;
         }
 
-        html, body {
-            height: 100%; margin: 0; padding: 0;
-            overflow: hidden;
+        html {
             background-color: var(--dark-bg);
         }
-
+        
         body {
+            height: 100vh; margin: 0; padding: 0;
+            overflow: hidden;
             font-family: 'Cairo', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* ✨ This is for centering the phone frame on desktop */
+            justify-content: center;
+        }
+
+        /* ✨ NEW: This frame wraps the entire app */
+        .phone-frame {
+            background-color: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            position: relative;
+                        align-items: center;
+
         }
 
         .app-body {
@@ -87,73 +102,72 @@
             padding: 0 10px; box-sizing: border-box;
         }
 
-        #text-layer-1 {
-            top: 1200px;
-            height: 100px;
-            font-size: 55px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        #text-layer-2 {
-            top: 1280px;
-            height: 60px; /* Reduced height to make space */
-            font-size: 40px;
-            cursor: pointer;
-        }
-
-        /* ✨ NEW: Style for the Hijri date layer */
-        #text-layer-3 {
-            top: 1330px; /* Positioned below the Gregorian date */
-            height: 50px;
-            font-size: 15px; /* Slightly smaller font */
-            font-weight: 200;
-        }
+        #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; white-space: nowrap; }
+        #text-layer-2 { top: 1280px; height: 60px; font-size: 40px; cursor: pointer; }
+        #text-layer-3 { top: 1340px; height: 50px; font-size: 15px; font-weight: 400; }
         
         #controls {
             width: 100%;
             background-color: var(--panel-bg);
-            padding: 10px 0;
+            padding: 10px 5px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .control-btn {
-            background-color: var(--btn-gray); color: white; border: none; padding: 10px;
+            background-color: var(--btn-gray); color: white; border: none;
             border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px;
             cursor: pointer; transition: background-color 0.3s ease;
             flex-grow: 1; margin: 0 5px; max-width: 150px;
+            display: flex; align-items: center; justify-content: center;
+            height: 44px; padding: 0 10px;
         }
         
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
+
+        /* ✨ NEW: Media Query to apply phone frame styles only on large screens */
+        @media (min-width: 768px) {
+            .phone-frame {
+                width: 414px; /* Common iPhone width */
+                height: 800px; /* Common phone height */
+                border: 12px solid var(--phone-border);
+                border-radius: 40px;
+                box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+                overflow: hidden;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-body">
-        <div id="canvas-wrapper">
-            <div id="design-container">
-                <div id="base-image" class="base-image-container" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
-                <img id="overlay-design" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png" alt="تصميم النعي">
-                
-                <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
-                <div id="text-layer-2" class="text-layer">اختر التاريخ الميلادي</div>
-                <!-- ✨ NEW: Hijri date layer -->
-                <div id="text-layer-3" class="text-layer"></div>
+    <div class="phone-frame">
+        <div class="app-body">
+            <div id="canvas-wrapper">
+                <div id="design-container">
+                    <div id="base-image" class="base-image-container" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
+                    <img id="overlay-design" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png" alt="تصميم النعي">
+                    
+                    <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
+                    <div id="text-layer-2" class="text-layer">اختر التاريخ الميلادي</div>
+                    <div id="text-layer-3" class="text-layer"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="controls">
-        <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg')">رجل</button>
-        <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg')">امرأة</button>
-        <label for="custom-image-input" class="control-btn">مخصص</label>
-        <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
-        <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
+        <div id="controls">
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/C5QgVZKN/man2.jpg')">رجل</button>
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/dJXKvzJj/woman2.jpg')">امرأة</button>
+            <!-- ✨ UPDATED: Quran button now sets an image -->
+            <button class="control-btn" onclick="setImage('https://i.ibb.co/8nLfvHYj/quran.png')">قرآن</button>
+            <label for="custom-image-input" class="control-btn">مخصص</label>
+            <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
+            <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
+        </div>
     </div>
 
     <input type="text" id="datepicker-proxy" style="position: absolute; top: -100px; opacity: 0; pointer-events: none;">
@@ -162,7 +176,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const nameLayer = document.getElementById('text-layer-1');
             const dateLayer = document.getElementById('text-layer-2');
-            const hijriLayer = document.getElementById('text-layer-3'); // ✨ Get the new element
+            const hijriLayer = document.getElementById('text-layer-3');
             const datepickerProxy = document.getElementById('datepicker-proxy');
             
             const MAX_FONT_SIZE = 55;
@@ -185,24 +199,16 @@
                 onChange: function(selectedDates, dateStr) {
                     if (selectedDates.length > 0) {
                         const selectedDate = selectedDates[0];
-
-                        // ✨ 1. Update Gregorian date (without day name)
                         dateLayer.innerText = dateStr.replace(/-/g, '/');
-
-                        // ✨ 2. Convert and update Hijri date
                         const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
+                            day: 'numeric', month: 'long', year: 'numeric'
                         });
-                        hijriLayer.innerText = hijriFormatter.format(selectedDate);
+                        hijriLayer.innerText = "الموافق " + hijriFormatter.format(selectedDate);
                     }
                 },
             });
 
-            dateLayer.addEventListener('click', function() {
-                fp.open();
-            });
+            dateLayer.addEventListener('click', () => fp.open());
 
             const appBody = document.querySelector('.app-body');
             const canvasWrapper = document.getElementById('canvas-wrapper');
@@ -231,9 +237,7 @@
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) { 
-                    setImage(e.target.result); 
-                }
+                reader.onload = e => setImage(e.target.result);
                 reader.readAsDataURL(file);
             }
         }

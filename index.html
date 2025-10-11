@@ -28,9 +28,15 @@
             background-color: var(--dark-bg);
         }
         
-        body {
-            height: 100vh; margin: 0; padding: 0;
+        /* ✨ UPDATED: Ensures consistent height calculation on all devices */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
+        }
+
+        body {
             font-family: 'Cairo', sans-serif;
             display: flex;
             align-items: center;
@@ -44,23 +50,22 @@
             width: 100%;
             height: 100%;
             position: relative;
+            overflow: hidden; /* Prevents proxy from showing */
         }
 
         .app-body {
-            flex-grow: 1;
+            flex-grow: 1; /* Takes up all available vertical space */
+            min-height: 0; /* Fix for scrolling inside flex containers */
             width: 100%;
-            overflow-y: auto;
-            overflow-x: auto; 
+            overflow: auto; /* Allows both vertical and horizontal scrolling */
             padding: 15px 0;
             box-sizing: border-box;
         }
 
-        /* ✨ THE FINAL FIX IS HERE */
         #canvas-wrapper {
             position: relative;
             flex-shrink: 0;
-            float: right; /* This forces the element to the right edge of the container */
-            /* The margin is set by the scaling function now */
+            float: right; /* Keeps the design aligned to the right */
         }
         
         #design-container {
@@ -69,7 +74,7 @@
             height: 1500px;
             overflow: hidden;
             background-color: #000;
-            transform-origin: top right; /* Align scaling from the top right corner */
+            transform-origin: top right;
         }
 
         .base-image-container {
@@ -110,8 +115,9 @@
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0;
+            flex-shrink: 0; /* Prevents the control bar from shrinking */
             box-sizing: border-box;
+            z-index: 100; /* Ensures it's above other elements */
         }
 
         .control-btn {
@@ -125,6 +131,17 @@
         
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
+        
+        /* ✨ UPDATED: More robust hiding for the datepicker proxy */
+        #datepicker-proxy {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+        }
 
         @media (min-width: 500px) {
             .phone-frame {
@@ -133,7 +150,6 @@
                 border: 12px solid var(--phone-border);
                 border-radius: 40px;
                 box-shadow: 0 15px 50px rgba(0,0,0,0.6);
-                overflow: hidden;
             }
         }
     </style>
@@ -162,9 +178,10 @@
             <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
             <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
         </div>
+        
+        <!-- Proxy is now outside the visible structure, but still functional -->
+        <input type="text" id="datepicker-proxy">
     </div>
-
-    <input type="text" id="datepicker-proxy" style="position: absolute; top: -100px; opacity: 0; pointer-events: none;">
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

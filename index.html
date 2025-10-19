@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -28,7 +28,6 @@
             background-color: var(--dark-bg);
         }
         
-        /* ✨ UPDATED: The definitive fix for mobile height issues */
         html, body {
             height: 100%;
             margin: 0;
@@ -105,10 +104,23 @@
             transition: top 0.4s ease-out;
         }
 
+        /* Original, clean styles */
         #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; white-space: nowrap; }
         #text-layer-2 { top: 1280px; height: 60px; font-size: 40px; cursor: pointer; }
         #text-layer-3 { top: 1340px; height: 50px; font-size: 25px; font-weight: 400; }
         
+        /* === NEW BACKGROUND ELEMENT STYLE === */
+        #name-background {
+            display: none; /* Hidden by default */
+            position: absolute;
+            z-index: 19; /* Behind the text */
+            background: linear-gradient(to bottom, #4a4a4a, #2c2c2c);
+            border: 2px solid #555;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease-out;
+        }
+
         #controls {
             width: 100%;
             background-color: var(--panel-bg);
@@ -120,6 +132,7 @@
             flex-shrink: 0;
             box-sizing: border-box;
             z-index: 100;
+            flex-wrap: wrap;
         }
 
         .control-btn {
@@ -134,20 +147,67 @@
         #download-btn { background-color: var(--btn-green); }
         #custom-image-input { display: none; }
         
+        /* Fixed calendar positioning - HIGH Z-INDEX */
         #datepicker-proxy {
             position: fixed;
-            left: -9999px; top: -9999px;
-            opacity: 0; pointer-events: none;
-            width: 0; height: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            z-index: 99999;
+        }
+
+        /* Force calendar to appear on top of everything */
+        .flatpickr-calendar {
+            z-index: 100000 !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
+
+        .flatpickr-months, .flatpickr-weekdays, .flatpickr-days {
+            z-index: 100001 !important;
+        }
+
+        .flatpickr-day {
+            z-index: 100002 !important;
+        }
+
+        .visibility-controls {
+            display: flex;
+            gap: 10px;
+            margin: 0 5px;
+        }
+
+        .visibility-btn {
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            max-width: 150px;
+        }
+
+        .visibility-btn.active {
+            background-color: var(--btn-green);
         }
 
         @media (min-width: 500px) {
             .phone-frame {
-                width: 414px;
-                height: 800px;
-                border: 12px solid var(--phone-border);
-                border-radius: 40px;
-                box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+                width: 414px; height: 800px; border: 12px solid var(--phone-border);
+                border-radius: 40px; box-shadow: 0 15px 50px rgba(0,0,0,0.6);
             }
         }
     </style>
@@ -159,6 +219,10 @@
             <div id="canvas-wrapper">
                 <div id="design-container">
                     <div id="base-image" class="base-image-container" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
+                    
+                    <!-- NEW BACKGROUND ELEMENT -->
+                    <div id="name-background"></div>
+
                     <img id="overlay-design" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png" alt="تصميم النعي">
                     
                     <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
@@ -174,17 +238,55 @@
             <button class="control-btn" onclick="setImage('https://i.ibb.co/QvTDBv4F/QURAN2.jpg', 'quran')">قرآن</button>
             <label for="custom-image-input" class="control-btn">مخصص</label>
             <input type="file" id="custom-image-input" accept="image/*" onchange="uploadImage(event)">
+            
+            <!-- Date visibility controls moved here -->
+            <div class="visibility-controls">
+                <button id="toggle-gregorian" class="visibility-btn active">إخفاء الميلادي</button>
+                <button id="toggle-hijri" class="visibility-btn active">إخفاء الهجري</button>
+            </div>
+            
             <button id="download-btn" class="control-btn" onclick="downloadDesign()">تحميل</button>
         </div>
         
+        <!-- Calendar input positioned properly -->
         <input type="text" id="datepicker-proxy">
     </div>
 
     <script>
+        const nameLayer = document.getElementById('text-layer-1');
+        const dateLayer = document.getElementById('text-layer-2');
+        const hijriLayer = document.getElementById('text-layer-3');
+        const nameBg = document.getElementById('name-background');
+        const toggleGregorianBtn = document.getElementById('toggle-gregorian');
+        const toggleHijriBtn = document.getElementById('toggle-hijri');
+
+        // State variables for date visibility
+        let gregorianVisible = true;
+        let hijriVisible = true;
+        let flatpickrInstance = null;
+
+        // === NEW FUNCTION to dynamically size the background ===
+        function updateNameBackground() {
+            if (nameBg.style.display !== 'block') return;
+
+            // Give the browser a moment to render the text size
+            setTimeout(() => {
+                const textWidth = nameLayer.scrollWidth;
+                const textHeight = nameLayer.scrollHeight;
+                
+                // Set background size with padding
+                nameBg.style.width = (textWidth + 50) + 'px';
+                nameBg.style.height = (textHeight + 20) + 'px';
+                
+                // Position background behind the text layer
+                const nameTop = parseInt(nameLayer.style.top, 10);
+                nameBg.style.top = (nameTop + (100 - (textHeight + 20)) / 2) + 'px';
+                nameBg.style.left = '50%';
+                nameBg.style.transform = 'translateX(-50%)';
+            }, 50);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const nameLayer = document.getElementById('text-layer-1');
-            const dateLayer = document.getElementById('text-layer-2');
-            const hijriLayer = document.getElementById('text-layer-3');
             const datepickerProxy = document.getElementById('datepicker-proxy');
             
             const MAX_FONT_SIZE = 55;
@@ -196,14 +298,22 @@
                     currentSize--;
                     nameLayer.style.fontSize = currentSize + 'px';
                 }
+                updateNameBackground(); // Update background on font change
             }
-            nameLayer.addEventListener('input', adjustFontSize);
+            nameLayer.addEventListener('input', () => {
+                adjustFontSize();
+                updateNameBackground(); // Update background when user types
+            });
+            
             adjustFontSize();
 
-            const fp = flatpickr(datepickerProxy, {
+            // Initialize Flatpickr with proper configuration - FIXED
+            flatpickrInstance = flatpickr(datepickerProxy, {
                 locale: "ar",
                 theme: "dark",
                 dateFormat: "Y-m-d",
+                static: true,
+                position: "above",
                 onChange: function(selectedDates, dateStr) {
                     if (selectedDates.length > 0) {
                         const selectedDate = selectedDates[0];
@@ -216,7 +326,26 @@
                 },
             });
 
-            dateLayer.addEventListener('click', () => fp.open());
+            // Fixed calendar opening issue - using the working approach
+            dateLayer.addEventListener('click', function() {
+                flatpickrInstance.open();
+            });
+
+            // Toggle Gregorian date visibility
+            toggleGregorianBtn.addEventListener('click', () => {
+                gregorianVisible = !gregorianVisible;
+                dateLayer.style.display = gregorianVisible ? 'flex' : 'none';
+                toggleGregorianBtn.textContent = gregorianVisible ? 'إخفاء الميلادي' : 'إظهار الميلادي';
+                toggleGregorianBtn.classList.toggle('active', gregorianVisible);
+            });
+
+            // Toggle Hijri date visibility
+            toggleHijriBtn.addEventListener('click', () => {
+                hijriVisible = !hijriVisible;
+                hijriLayer.style.display = hijriVisible ? 'flex' : 'none';
+                toggleHijriBtn.textContent = hijriVisible ? 'إخفاء الهجري' : 'إظهار الهجري';
+                toggleHijriBtn.classList.toggle('active', hijriVisible);
+            });
 
             const appBody = document.querySelector('.app-body');
             const canvasWrapper = document.getElementById('canvas-wrapper');
@@ -227,11 +356,9 @@
             function scaleCanvas() {
                 const availableWidth = appBody.clientWidth;
                 const scale = availableWidth / ORIGINAL_WIDTH;
-                
                 designContainer.style.transform = `scale(${scale})`;
                 canvasWrapper.style.height = (ORIGINAL_HEIGHT * scale) + 'px';
                 canvasWrapper.style.width = (ORIGINAL_WIDTH * scale) + 'px';
-                
                 canvasWrapper.style.marginRight = '10px';
             }
             
@@ -242,19 +369,22 @@
         function setImage(imageUrl, mode) {
             const bgContainer = document.getElementById('base-image');
             bgContainer.style.backgroundImage = `url('${imageUrl}')`;
-
             const overlayDesign = document.getElementById('overlay-design');
-            const nameLayer = document.getElementById('text-layer-1');
-            const dateLayer = document.getElementById('text-layer-2');
-            const hijriLayer = document.getElementById('text-layer-3');
             
             if (mode === 'quran') {
                 overlayDesign.style.opacity = '0';
+                nameBg.style.display = 'block';
+
                 nameLayer.style.top = (1200 - 220) + 'px';
-                dateLayer.style.top = (1280 - 210) + 'px';
-                hijriLayer.style.top = (1340 - 210) + 'px';
-            } else {
+                dateLayer.style.top = (1280 - 210 + 30) + 'px'; // Move down for space
+                hijriLayer.style.top = (1340 - 210 + 30) + 'px';
+                
+                updateNameBackground();
+
+            } else { // 'normal' mode
                 overlayDesign.style.opacity = '1';
+                nameBg.style.display = 'none';
+
                 nameLayer.style.top = '1200px';
                 dateLayer.style.top = '1280px';
                 hijriLayer.style.top = '1340px';
@@ -276,10 +406,12 @@
             downloadButton.innerText = 'تحضير...';
             downloadButton.disabled = true;
 
+            // Original saving method from your first code
             html2canvas(designContainer, { 
                 useCORS: true, 
                 allowTaint: true, 
-                scale: 2 
+                scale: 2,
+                backgroundColor: null
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'obituary-design.png';

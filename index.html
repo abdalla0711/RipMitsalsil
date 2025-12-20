@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>مصمم النعي الاحترافي - نسخة الإصلاح</title>
+    <title>المصمم الاحترافي - خلفية مخصصة مع إطار</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -17,13 +17,12 @@
             --dark-bg: #1a1a1a;
             --panel-bg: #2d2d2d;
             --btn-green: #27ae60;
-            --btn-blue: #2980b9;
             --btn-gold: #b8860b;
+            --btn-blue: #2980b9;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--dark-bg);
+            font-family: 'Cairo', sans-serif; background-color: var(--dark-bg);
             margin: 0; display: flex; align-items: center; justify-content: center;
             height: 100vh; overflow: hidden; color: white;
         }
@@ -46,60 +45,57 @@
             background-color: #000; transform-origin: top center; overflow: hidden;
         }
 
+        /* ترتيب الطبقات */
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-
-        #base-image { background-size: cover; background-position: center; z-index: 1; }
         
-        /* حاوية الصورة الشخصية المحدثة لضمان عدم الانكماش */
-        #photo-crop-area {
-            position: absolute; 
-            top: 444px; left: 375px;
-            width: 343px; height: 486px;
-            z-index: 2; display: none;
-            background-color: #222;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border: 0px;
+        #base-image { z-index: 1; background-size: cover; background-position: center; }
+        
+        #photo-crop-area { 
+            position: absolute; top: 444px; left: 375px; 
+            width: 343px; height: 486px; 
+            z-index: 5; display: none; background-size: cover; background-position: center;
         }
 
-        #overlay-design { z-index: 10; pointer-events: none; }
+        #overlay-design { 
+            z-index: 10; /* الإطار PNG فوق الخلفية دائماً */
+            pointer-events: none; 
+        }
+
+        #name-background {
+            display: none; position: absolute; z-index: 18;
+            background: linear-gradient(to bottom, #4a4a4a, #2c2c2c);
+            border: 2px solid #555; border-radius: 15px;
+        }
 
         .text-layer {
-            position: absolute; width: 900px; left: 50%; transform: translateX(-50%);
+            position: absolute; width: 750px; left: 50%; transform: translateX(-50%);
             text-align: center; color: white; z-index: 20;
-            text-shadow: 3px 3px 8px rgba(0, 0, 0, 1);
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             display: flex; align-items: center; justify-content: center;
-            pointer-events: none;
         }
 
-        #text-layer-1 { top: 1200px; font-size: 60px; font-weight: 700; pointer-events: auto; }
-        #text-layer-2 { top: 1290px; font-size: 40px; cursor: pointer; pointer-events: auto; }
-        #text-layer-3 { top: 1360px; font-size: 30px; pointer-events: auto; }
+        #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; }
+        #text-layer-2 { top: 1280px; height: 60px; font-size: 40px; cursor: pointer; }
+        #text-layer-3 { top: 1340px; height: 50px; font-size: 25px; font-weight: 400; }
 
         #controls {
-            background: var(--panel-bg); padding: 15px;
-            display: flex; flex-direction: column; gap: 8px;
-            border-top: 2px solid #444; z-index: 200;
+            background: var(--panel-bg); padding: 10px;
+            display: flex; flex-direction: column; gap: 8px; border-top: 2px solid #444;
         }
-
         .btn-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-
         .btn {
-            background: #444; color: white; border: none; padding: 8px 10px;
+            background: #444; color: white; border: none; padding: 8px;
             border-radius: 6px; cursor: pointer; font-family: 'Cairo'; font-size: 11px;
-            flex: 1; min-width: 70px; transition: 0.2s;
+            flex: 1; min-width: 70px; text-align: center;
         }
-        .btn:active { transform: scale(0.95); }
         .btn-green { background: var(--btn-green); }
         .btn-gold { background: var(--btn-gold); }
-        .btn-move { background: #555; font-weight: bold; min-width: 35px; flex: none; width: 40px; height: 40px; }
-
-        #datepicker-proxy { position: absolute; visibility: hidden; }
+        .btn-blue { background: var(--btn-blue); }
+        .btn-move { background: #555; width: 35px; height: 35px; flex: none; font-weight: bold; }
 
         #image-edit-panel {
-            background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px;
-            display: none; flex-direction: column; align-items: center; gap: 5px;
+            background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px;
+            display: none; justify-content: center; gap: 4px;
         }
     </style>
 </head>
@@ -109,16 +105,11 @@
         <div class="app-body">
             <div id="canvas-wrapper">
                 <div id="design-container">
-                    <!-- الخلفية -->
-                    <div id="base-image" class="layer" style="background-image: url('https://i.ibb.co/C5QgVZKN/man2.jpg');"></div>
-                    
-                    <!-- منطقة الصورة الشخصية (تم تحويلها لـ DIV خلفية) -->
+                    <div id="base-image" class="layer"></div>
                     <div id="photo-crop-area"></div>
-
-                    <!-- الإطار العلوي -->
+                    <div id="name-background"></div>
                     <img id="overlay-design" class="layer" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png">
                     
-                    <!-- النصوص -->
                     <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
                     <div id="text-layer-2" class="text-layer">اختر التاريخ</div>
                     <div id="text-layer-3" class="text-layer"></div>
@@ -131,184 +122,189 @@
                 <button class="btn" onclick="setMode('man')">رجل</button>
                 <button class="btn" onclick="setMode('woman')">امرأة</button>
                 <button class="btn" onclick="setMode('quran')">قرآن</button>
-                <button class="btn btn-gold" onclick="setMode('frame')">إطار مخصص</button>
+                <button class="btn btn-gold" onclick="setMode('frame')">إطار ذهبي</button>
             </div>
 
             <div class="btn-row">
-                <label class="btn" style="text-align:center; display: flex; align-items:center; justify-content:center;">رفع صورة <input type="file" hidden onchange="handleUpload(event)"></label>
-                <button class="btn" onclick="toggleText('text-layer-2')">إخفاء الميلادي</button>
-                <button class="btn" onclick="toggleText('text-layer-3')">إخفاء الهجري</button>
+                <!-- هذا الزر يضع صورتك في الخلفية ويُبقي الإطار PNG فوقها -->
+                <label class="btn btn-blue">خلفية مخصصة + إطار <input type="file" hidden onchange="uploadCustomBg(event)"></label>
+                <label class="btn" id="person-btn" style="display:none;">صورة الشخص <input type="file" hidden onchange="uploadPerson(event)"></label>
+                <button class="btn" onclick="toggleDisplay('text-layer-2')">ميلادي</button>
+                <button class="btn" onclick="toggleDisplay('text-layer-3')">هجري</button>
             </div>
 
-            <!-- لوحة التحكم بالصورة الشخصية -->
             <div id="image-edit-panel">
-                <div class="btn-row">
-                    <button class="btn btn-move" onclick="moveImg(0, -5)">↑</button>
-                    <button class="btn btn-move" onclick="moveImg(0, 5)">↓</button>
-                    <button class="btn btn-move" onclick="moveImg(-5, 0)">→</button>
-                    <button class="btn btn-move" onclick="moveImg(5, 0)">←</button>
-                    <button class="btn btn-move" onclick="zoomImg(5)">+</button>
-                    <button class="btn btn-move" onclick="zoomImg(-5)">-</button>
-                </div>
+                <button class="btn btn-move" onclick="moveImg(0, -5)">↑</button>
+                <button class="btn btn-move" onclick="moveImg(0, 5)">↓</button>
+                <button class="btn btn-move" onclick="moveImg(-5, 0)">→</button>
+                <button class="btn btn-move" onclick="moveImg(5, 0)">←</button>
+                <button class="btn btn-move" onclick="zoomImg(5)">+</button>
+                <button class="btn btn-move" onclick="zoomImg(-5)">-</button>
             </div>
 
-            <button class="btn btn-green" style="font-size:16px; font-weight:bold; height: 50px;" onclick="downloadImage()">تحميل التصميم النهائي</button>
+            <button class="btn btn-green" style="font-size:14px; font-weight:bold; height: 45px;" onclick="downloadImage()">تحميل التصميم النهائي</button>
         </div>
-        
-        <input type="text" id="datepicker-proxy">
+        <input type="text" id="datepicker-proxy" style="position:fixed; opacity:0; pointer-events:none;">
     </div>
 
     <script>
         const container = document.getElementById('design-container');
-        const photoArea = document.getElementById('photo-crop-area');
-        const baseImg = document.getElementById('base-image');
-        const overlay = document.getElementById('overlay-design');
+        const nameLayer = document.getElementById('text-layer-1');
         const dateLayer = document.getElementById('text-layer-2');
         const hijriLayer = document.getElementById('text-layer-3');
-        const nameLayer = document.getElementById('text-layer-1');
-        const imgPanel = document.getElementById('image-edit-panel');
+        const nameBg = document.getElementById('name-background');
+        const baseImg = document.getElementById('base-image');
+        const overlay = document.getElementById('overlay-design');
+        const photoArea = document.getElementById('photo-crop-area');
+        const editPanel = document.getElementById('image-edit-panel');
+        const personBtn = document.getElementById('person-btn');
 
-        let photoState = { x: 50, y: 50, scale: 100 }; // بالمئة
+        let photoState = { x: 50, y: 50, scale: 100 };
 
-        // 1. نظام القوالب
+        function adjustName() {
+            const MAX = 55, MIN = 20;
+            let size = MAX;
+            nameLayer.style.fontSize = size + 'px';
+            while (nameLayer.scrollWidth > nameLayer.clientWidth && size > MIN) {
+                size--;
+                nameLayer.style.fontSize = size + 'px';
+            }
+            if (nameBg.style.display === 'block') {
+                setTimeout(() => {
+                    const w = nameLayer.scrollWidth;
+                    const h = nameLayer.scrollHeight;
+                    nameBg.style.width = (w + 60) + 'px';
+                    nameBg.style.height = (h + 20) + 'px';
+                    nameBg.style.top = (parseInt(nameLayer.style.top) + (100 - (h + 20)) / 2) + 'px';
+                    nameBg.style.left = '50%';
+                    nameBg.style.transform = 'translateX(-50%)';
+                }, 50);
+            }
+        }
+        nameLayer.addEventListener('input', adjustName);
+
         function setMode(mode) {
-            imgPanel.style.display = (mode === 'frame') ? 'flex' : 'none';
-            photoArea.style.display = (mode === 'frame') ? 'block' : 'none';
-            
-            if (mode === 'frame') {
+            container.style.width = '1083px';
+            container.style.height = '1500px';
+            nameBg.style.display = 'none';
+            overlay.style.opacity = '1';
+            overlay.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png'; // السكيتش الافتراضي
+            photoArea.style.display = 'none';
+            editPanel.style.display = 'none';
+            personBtn.style.display = 'none';
+
+            if (mode === 'man' || mode === 'woman') {
+                const url = (mode === 'man') ? 'https://i.ibb.co/C5QgVZKN/man2.jpg' : 'https://i.ibb.co/dJXKvzJj/woman2.jpg';
+                baseImg.style.backgroundImage = `url('${url}')`;
+                updatePos(1200, 1280, 1340);
+            } 
+            else if (mode === 'quran') {
+                baseImg.style.backgroundImage = "url('https://i.ibb.co/QvTDBv4F/QURAN2.jpg')";
+                overlay.style.opacity = '0';
+                nameBg.style.display = 'block';
+                updatePos(980, 1100, 1160);
+            }
+            else if (mode === 'frame') {
                 container.style.width = '1080px';
                 container.style.height = '1350px';
                 overlay.src = 'https://i.ibb.co/N6Stj5Bm/375x444.png';
-                overlay.style.opacity = '1';
                 baseImg.style.backgroundImage = 'none';
-                updateTextPos(1000, 1100, 1170);
-            } else if (mode === 'quran') {
-                resetSize();
-                baseImg.style.backgroundImage = "url('https://i.ibb.co/QvTDBv4F/QURAN2.jpg')";
-                overlay.style.opacity = '0';
-                updateTextPos(980, 1100, 1170);
-            } else {
-                resetSize();
-                const url = (mode === 'man') ? 'https://i.ibb.co/C5QgVZKN/man2.jpg' : 'https://i.ibb.co/dJXKvzJj/woman2.jpg';
-                baseImg.style.backgroundImage = `url('${url}')`;
-                overlay.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png';
-                overlay.style.opacity = '1';
-                updateTextPos(1200, 1290, 1360);
+                photoArea.style.display = 'block';
+                editPanel.style.display = 'flex';
+                personBtn.style.display = 'flex';
+                updatePos(1000, 1100, 1160);
             }
+            adjustName();
             scaleUI();
         }
 
-        function resetSize() {
-            container.style.width = '1083px';
-            container.style.height = '1500px';
-        }
-
-        function updateTextPos(t1, t2, t3) {
-            nameLayer.style.top = t1 + 'px';
-            dateLayer.style.top = t2 + 'px';
-            hijriLayer.style.top = t3 + 'px';
-        }
-
-        // 2. التحكم بالصورة الشخصية (نظام الخلفية لمنع الانكماش)
-        function handleUpload(e) {
+        // وظيفة رفع خلفية مخصصة مع بقاء الـ PNG فوقها
+        function uploadCustomBg(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    photoArea.style.backgroundImage = `url('${event.target.result}')`;
-                    photoState = { x: 50, y: 50, scale: 100 };
-                    applyPhotoTransform();
+                reader.onload = (ev) => {
+                    // نضبط الإعدادات لتكون مثل وضع الرجل/المرأة ولكن بصورتك
+                    setMode('man'); 
+                    baseImg.style.backgroundImage = `url('${ev.target.result}')`;
+                    overlay.style.opacity = '1'; 
+                    overlay.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png';
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function moveImg(x, y) {
-            photoState.x += x;
-            photoState.y += y;
-            applyPhotoTransform();
+        function uploadPerson(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    photoArea.style.backgroundImage = `url('${ev.target.result}')`;
+                    photoState = { x: 50, y: 50, scale: 100 };
+                    applyTrans();
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
-        function zoomImg(s) {
-            photoState.scale += s;
-            if(photoState.scale < 10) photoState.scale = 10;
-            applyPhotoTransform();
-        }
-
-        function applyPhotoTransform() {
+        function moveImg(x, y) { photoState.x += x; photoState.y += y; applyTrans(); }
+        function zoomImg(s) { photoState.scale += s; applyTrans(); }
+        function applyTrans() {
             photoArea.style.backgroundPosition = `${photoState.x}% ${photoState.y}%`;
             photoArea.style.backgroundSize = `${photoState.scale}%`;
         }
 
-        // 3. التاريخ
+        function updatePos(t1, t2, t3) {
+            nameLayer.style.top = t1 + 'px';
+            dateLayer.style.top = t2 + 'px';
+            hijriLayer.style.top = t3 + 'px';
+        }
+
         const fp = flatpickr("#datepicker-proxy", {
             locale: "ar",
-            onChange: function(dates, str) {
+            onChange: (dates, str) => {
                 dateLayer.innerText = str.replace(/-/g, '/');
-                const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                }).format(dates[0]);
-                hijriLayer.innerText = "الموافق " + hijri;
+                hijriLayer.innerText = "الموافق " + new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(dates[0]);
             }
         });
-
         dateLayer.addEventListener('click', () => fp.open());
 
-        function toggleText(id) {
+        function toggleDisplay(id) {
             const el = document.getElementById(id);
             el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
         }
 
-        // 4. معالجة الواجهة والتحميل (حل مشكلة الانكماش)
         function scaleUI() {
             const wrapper = document.getElementById('canvas-wrapper');
             const body = document.querySelector('.app-body');
-            const availableWidth = body.clientWidth - 40;
-            const scale = availableWidth / container.offsetWidth;
+            const scale = (body.clientWidth - 40) / container.offsetWidth;
             container.style.transform = `scale(${scale})`;
             wrapper.style.width = (container.offsetWidth * scale) + 'px';
             wrapper.style.height = (container.offsetHeight * scale) + 'px';
         }
 
         window.addEventListener('resize', scaleUI);
-        window.onload = () => { scaleUI(); setMode('man'); };
+        window.onload = () => setMode('man');
 
         async function downloadImage() {
             const btn = event.target;
-            const originalBtnText = btn.innerText;
             btn.innerText = "جاري الحفظ...";
-            btn.disabled = true;
-
-            // الخطوة الحاسمة: إزالة التكبير/التصغير مؤقتاً لضمان التقاط الأبعاد الحقيقية
             const originalTransform = container.style.transform;
             container.style.transform = 'none';
-            
-            // تمرير الشاشة للأعلى لضمان عدم وجود إزاحة في التقاط html2canvas
             window.scrollTo(0,0);
-
             try {
                 const canvas = await html2canvas(container, {
-                    useCORS: true,
-                    allowTaint: true,
-                    scale: 2, // جودة مضاعفة
-                    width: container.offsetWidth,
-                    height: container.offsetHeight,
-                    backgroundColor: "#000"
+                    useCORS: true, scale: 2,
+                    width: container.offsetWidth, height: container.offsetHeight
                 });
-
                 const link = document.createElement('a');
-                link.download = `obituary_${Date.now()}.png`;
-                link.href = canvas.toDataURL("image/png", 1.0);
+                link.download = `Obituary_${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
                 link.click();
-            } catch (e) {
-                console.error(e);
-                alert("حدث خطأ أثناء تحميل الصورة، تأكد من جودة اتصالك.");
-            }
-
+            } catch (e) { alert("خطأ في التحميل"); }
             container.style.transform = originalTransform;
-            btn.innerText = originalBtnText;
-            btn.disabled = false;
-            scaleUI(); // إعادة ضبط الواجهة
+            btn.innerText = "تحميل التصميم النهائي";
+            scaleUI();
         }
     </script>
 </body>

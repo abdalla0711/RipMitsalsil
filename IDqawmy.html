@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محلل الرقم القومي المصري</title>
+    <style>
+        :root {
+            --primary-color: #3085d6;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+        }
+        button {
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #266cb0;
+        }
+        .result-box {
+            display: none; /* مخفي افتراضياً */
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+        }
+        td:first-child {
+            font-weight: bold;
+            color: #555;
+            width: 40%;
+            background-color: #fafafa;
+        }
+        td:last-child {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>مستخرج بيانات الرقم القومي</h1>
+    
+    <div class="input-group">
+        <input type="text" id="nationalId" placeholder="أدخل الرقم القومي (14 رقم)" maxlength="14" onkeypress="return isNumber(event)">
+        <br>
+        <button onclick="analyzeID()">استخراج البيانات</button>
+    </div>
+
+    <div id="errorMessage" class="error"></div>
+
+    <div class="result-box" id="resultBox">
+        <table>
+            <tbody>
+                <tr><td>الجنس</td><td id="resGender"></td></tr>
+                <tr><td>البرج</td><td id="resZodiac"></td></tr>
+                <tr><td>البرج الصيني</td><td id="resChineseZodiac"></td></tr>
+                <tr><td>تاريخ الميلاد</td><td id="resBirthDate"></td></tr>
+                <tr><td>الموافق (هجري)</td><td id="resHijriDate"></td></tr>
+                <tr><td>مكان الميلاد</td><td id="resBirthPlace"></td></tr>
+                <tr><td>عيد الميلاد القادم</td><td id="resNextBirthday"></td></tr>
+                <tr><td>العمر</td><td id="resAge"></td></tr>
+                <tr><td>المولود رقم</td><td id="resOrder"></td></tr>
+                <tr><td>تاريخ التقاعد (60 سنة)</td><td id="resRetirementDate"></td></tr>
+                <tr><td>حالة التقاعد</td><td id="resRetirementStatus"></td></tr>
+                <!-- حدث تاريخي بسيط كمثال -->
+                <tr><td>حدث في مثل هذا الشهر</td><td id="resEvent"></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // قائمة المحافظات حسب الكود
+    const governorates = {
+        '01': 'القاهرة', '02': 'الإسكندرية', '03': 'بورسعيد', '04': 'السويس', 
+        '11': 'دمياط', '12': 'الدقهلية', '13': 'الشرقية', '14': 'القليوبية', 
+        '15': 'كفر الشيخ', '16': 'الغربية', '17': 'المنوفية', '18': 'البحيرة', 
+        '19': 'الإسماعيلية', '21': 'الجيزة', '22': 'بني سويف', '23': 'الفيوم', 
+        '24': 'المنيا', '25': 'أسيوط', '26': 'سوهاج', '27': 'قنا', 
+        '28': 'أسوان', '29': 'الأقصر', '31': 'البحر الأحمر', '32': 'الوادي الجديد', 
+        '33': 'مطروح', '34': 'شمال سيناء', '35': 'جنوب سيناء', '88': 'خارج الجمهورية'
+    };
+
+    // الأبراج الفلكية
+    function getZodiac(day, month) {
+        const zodiacs = [
+            { sign: "الجدي", endDay: 19 }, { sign: "الدلو", endDay: 18 }, 
+            { sign: "الحوت", endDay: 20 }, { sign: "الحمل", endDay: 19 }, 
+            { sign: "الثور", endDay: 20 }, { sign: "الجوزاء", endDay: 20 }, 
+            { sign: "السرطان", endDay: 22 }, { sign: "الأسد", endDay: 22 }, 
+            { sign: "العذراء", endDay: 22 }, { sign: "الميزان", endDay: 22 }, 
+            { sign: "العقرب", endDay: 21 }, { sign: "القوس", endDay: 21 }, 
+            { sign: "الجدي", endDay: 31 }
+        ];
+        // تعديل الشهر ليناسب المصفوفة (يناير = 0)
+        let zIndex = month - 1; 
+        if (day > zodiacs[zIndex].endDay) {
+            return zodiacs[zIndex + 1].sign;
+        }
+        return zodiacs[zIndex].sign;
+    }
+
+    // الأبراج الصينية (تعتمد على باقي القسمة على 12)
+    function getChineseZodiac(year) {
+        const animals = ['القرد', 'الديك', 'الكلب', 'الخنزير', 'الفأر', 'الثور', 'النمر', 'الأرنب', 'التنين', 'الأفعى', 'الحصان', 'الخروف'];
+        return animals[year % 12];
+    }
+
+    // التأكد من إدخال أرقام فقط
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function analyzeID() {
+        const id = document.getElementById('nationalId').value;
+        const errorDiv = document.getElementById('errorMessage');
+        const resultBox = document.getElementById('resultBox');
+
+        // تنظيف النتائج السابقة
+        errorDiv.style.display = 'none';
+        resultBox.style.display = 'none';
+
+        // تحقق بسيط من الصحة
+        if (id.length !== 14 || isNaN(id)) {
+            errorDiv.innerText = "يرجى إدخال رقم قومي صحيح مكون من 14 رقم.";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 1. استخراج القرن والسنة
+        const centuryCode = parseInt(id[0]);
+        const yearPart = parseInt(id.substring(1, 3));
+        let fullYear;
+        if (centuryCode === 2) fullYear = 1900 + yearPart;
+        else if (centuryCode === 3) fullYear = 2000 + yearPart;
+        else {
+            errorDiv.innerText = "رقم قومي غير صالح (القرن غير معروف).";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 2. الشهر واليوم
+        const month = parseInt(id.substring(3, 5));
+        const day = parseInt(id.substring(5, 7));
+
+        // التحقق من صحة التاريخ
+        const birthDate = new Date(fullYear, month - 1, day);
+        if (birthDate.getFullYear() !== fullYear || birthDate.getMonth() + 1 !== month || birthDate.getDate() !== day) {
+            errorDiv.innerText = "رقم قومي غير صالح (تاريخ الميلاد غير صحيح).";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // 3. المحافظة
+        const govCode = id.substring(7, 9);
+        const birthPlace = governorates[govCode] || "غير معروف";
+
+        // 4. الجنس وترتيب المولود
+        const sequence = id.substring(9, 13); // 4 أرقام
+        const genderDigit = parseInt(sequence.charAt(3)); // الرقم الـ 13
+        const gender = (genderDigit % 2 !== 0) ? "ذكر" : "أنثى";
+        
+        // استخراج ترتيب المولود (بناء على الأرقام من 10 لـ 12) - تقريبي
+        const birthOrder = parseInt(id.substring(9, 12));
+
+        // 5. الحسابات (العمر، التقاعد)
+        const today = new Date();
+        let ageYears = today.getFullYear() - birthDate.getFullYear();
+        let ageMonths = today.getMonth() - birthDate.getMonth();
+        let ageDays = today.getDate() - birthDate.getDate();
+
+        if (ageDays < 0) {
+            ageMonths--;
+            ageDays += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+        if (ageMonths < 0) {
+            ageYears--;
+            ageMonths += 12;
+        }
+
+        // تاريخ التقاعد
+        const retirementYear = fullYear + 60;
+        const retirementDate = new Date(retirementYear, month - 1, day);
+        
+        // حساب وقت التقاعد المتبقي
+        let retStatus = "";
+        if (today >= retirementDate) {
+            retStatus = "متقاعد بالفعل";
+        } else {
+            let remYears = retirementYear - today.getFullYear();
+            let remMonths = (month - 1) - today.getMonth();
+            let remDays = day - today.getDate();
+             if (remDays < 0) {
+                remMonths--;
+                remDays += 30; // تقريبي
+            }
+            if (remMonths < 0) {
+                remYears--;
+                remMonths += 12;
+            }
+            retStatus = `متبقي ${remYears} سنة و ${remMonths} شهر`;
+        }
+
+        // العيد ميلاد القادم
+        const nextBirthday = new Date(today.getFullYear(), month - 1, day);
+        if (today > nextBirthday) {
+            nextBirthday.setFullYear(today.getFullYear() + 1);
+        }
+        const diffTime = Math.abs(nextBirthday - today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        const nextBMonth = Math.floor(diffDays / 30);
+        const nextBDays = diffDays % 30;
+
+        // التاريخ الهجري
+        const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(birthDate);
+
+        // --- عرض النتائج ---
+        document.getElementById('resGender').innerText = gender;
+        document.getElementById('resZodiac').innerText = getZodiac(day, month);
+        document.getElementById('resChineseZodiac').innerText = getChineseZodiac(fullYear);
+        
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('resBirthDate').innerText = birthDate.toLocaleDateString('ar-EG', options);
+        document.getElementById('resHijriDate').innerText = hijriDate;
+        
+        document.getElementById('resBirthPlace').innerText = birthPlace;
+        document.getElementById('resNextBirthday').innerText = `بعد ${nextBMonth} شهر و ${nextBDays} يوم`;
+        document.getElementById('resAge').innerText = `${ageYears} سنة و ${ageMonths} شهر و ${ageDays} يوم`;
+        document.getElementById('resOrder').innerText = birthOrder;
+        
+        document.getElementById('resRetirementDate').innerText = retirementDate.toLocaleDateString('ar-EG', options);
+        document.getElementById('resRetirementStatus').innerText = retStatus;
+        
+        // حدث عشوائي (محاكاة)
+        document.getElementById('resEvent').innerText = "حدث تاريخي عشوائي (يتطلب قاعدة بيانات)";
+
+        resultBox.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أداة تحليل سعر الذهب</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+    :root {
+        --primary-color: #3f51b5;
+        --secondary-color: #1a237e;
+        --text-dark: #2c3e50;
+        --text-light: #6c757d;
+        --bg-light: #f8f9fa;
+        --bg-white: #ffffff;
+        --border-color: #dee2e6;
+        --green: #28a745;
+        --red: #dc3545;
+        --terminal-bg: #1e1e1e; /* لون أغمق قليلاً */
+        --terminal-fg: #00ff41;
+    }
+    body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-light); margin: 0; padding: 20px; color: var(--text-dark); }
+    .dashboard-container { max-width: 800px; margin: auto; }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .dashboard-header h1 {
+        color: var(--secondary-color);
+        margin: 0;
+    }
+    .dashboard-header p {
+        color: var(--text-light);
+        font-size: 1.1em;
+        margin-top: 5px;
+    }
+    
+    .card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+    .card-title {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* منطقة الإدخال الرئيسية */
+    .main-input-area {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        align-items: center;
+    }
+    .input-group { text-align: center; }
+    .gold-input {
+        width: 80%;
+        text-align: center;
+        font-family: 'Tajawal', sans-serif;
+        font-size: 2em;
+        font-weight: 700;
+        padding: 10px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .check-price-btn {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 1em;
+        font-weight: 700;
+        padding: 12px 25px;
+        background-color: var(--green);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .check-price-btn:hover { background-color: #218838; }
+    
+    .derived-output { text-align: center; }
+    .derived-output .label { font-size: 1em; color: var(--text-light); }
+    .derived-output .value { font-size: 2em; font-weight: 700; color: var(--primary-color); }
+    
+    /* منطقة التحليل */
+    .analysis-area {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 15px;
+    }
+    .analysis-column { padding: 15px; border-radius: 12px; background-color: var(--bg-light); text-align: center; }
+    .analysis-column .title { font-size: 1.1em; font-weight: 700; color: var(--text-dark); }
+    .analysis-column .price { font-size: 1.8em; font-weight: 700; margin: 10px 0; }
+    .analysis-column .sub-price { font-size: 1em; color: var(--text-light); }
+    
+    .premium-display { text-align: center; }
+    .premium-display .label { font-size: 1em; font-weight: 700; color: var(--text-dark); }
+    .premium-display .value {
+        font-size: 2.5em;
+        font-weight: 700;
+        padding: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        line-height: 80px;
+        margin-top: 10px;
+        border: 5px solid;
+    }
+    .premium-positive { color: var(--red); border-color: var(--red); }
+    .premium-negative { color: var(--green); border-color: var(--green); }
+    .premium-neutral { color: var(--text-light); border-color: var(--text-light); }
+    
+    /* منطقة المراجع */
+    .reference-list { display: flex; justify-content: space-around; text-align: center; }
+    .reference-list .item .label { font-size: 1em; color: var(--text-light); }
+    .reference-list .item .value { font-size: 1.5em; font-weight: 700; }
+    
+    /* منطقة التقرير */
+    .terminal-card {
+        background-color: var(--terminal-bg);
+        color: var(--terminal-fg);
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .terminal-card .card-title {
+        color: #f0f0f0;
+        border-bottom-color: #444;
+    }
+    .report-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+        line-height: 1.8;
+    }
+    .report-table td {
+        padding: 5px;
+        vertical-align: middle;
+    }
+    .report-table .icon { width: 24px; text-align: center; }
+    .report-table .label { text-align: right; }
+    .report-table .value { text-align: left; font-weight: bold; }
+    .report-table .heading {
+        text-align: center;
+        padding-top: 15px;
+        font-size: 1.1em;
+        color: #f0f0f0;
+    }
+    .copy-btn {
+        font-family: 'Tajawal', sans-serif;
+        font-size: 1em;
+        font-weight: 700;
+        padding: 12px 30px;
+        background-color: transparent;
+        color: var(--terminal-fg);
+        border: 2px solid var(--terminal-fg);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .copy-btn:hover { background-color: var(--terminal-fg); color: var(--terminal-bg); }
+    
+    .loader { font-size: 1.5em; font-weight: bold; color: var(--primary-color); }
+    
+    /* Modal CSS */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+    .modal-content { background-color: #fefefe; border-radius: 10px; width: 90%; height: 85%; display: flex; flex-direction: column; }
+    .modal-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background-color: var(--secondary-color); color: white; border-top-left-radius: 10px; border-top-right-radius: 10px; }
+    .modal-header h2 { margin: 0; font-size: 18px; }
+    .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; }
+    .modal-body { flex-grow: 1; padding: 5px; }
+    .modal-body iframe { width: 100%; height: 100%; border: none; }
+</style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>أداة تحليل سعر الذهب في مصر</h1>
+        <p>أدخل سعر السوق الفعلي للمقارنة مع السعر العالمي العادل</p>
+    </div>
+
+    <!-- بطاقة الإدخال -->
+    <div class="card">
+        <div class="main-input-area">
+            <div class="input-group">
+                <label for="local-gold-21-input" class="card-title">1. أدخل سعر جرام 21 في السوق</label>
+                <input type="number" id="local-gold-21-input" class="gold-input">
+                <button id="open-modal-btn" class="check-price-btn">فحص المصدر</button>
+            </div>
+            <div class="derived-output">
+                <div class="label">يترجم إلى دولار بسعر</div>
+                <div class="value loader" id="gold-usd-price">...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة التحليل -->
+    <div class="card">
+        <h2 class="card-title">2. تحليل السعر</h2>
+        <div class="analysis-area">
+            <div class="analysis-column">
+                <div class="title">السعر العادل (حسب البنك)</div>
+                <div class="price loader" id="fair-gold-price" style="color: var(--green);">...</div>
+                <div class="sub-price loader" id="bank-usd-price">...</div>
+            </div>
+            <div class="premium-display">
+                <div class="label">فجوة الدولار</div>
+                <div class="value loader" id="premium-value">...</div>
+            </div>
+            <div class="analysis-column">
+                <div class="title">السعر الفعلي (حسب السوق)</div>
+                <div class="price" id="actual-gold-price">...</div>
+                <div class="sub-price loader" id="actual-usd-price">...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة المراجع -->
+    <div class="card">
+        <h2 class="card-title">3. البيانات المرجعية</h2>
+        <div class="reference-list">
+            <div class="item">
+                <div class="label">أونصة الذهب العالمية</div>
+                <div class="value loader" id="global-gold-price">...</div>
+            </div>
+            <div class="item">
+                <div class="label">الريال السعودي</div>
+                <div class="value loader" id="sar-price">...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة التقرير بشكل الـ Terminal -->
+    <div class="card terminal-card">
+        <h2 class="card-title">4. التقرير النصي // SYSTEM.OUT.PRINTLN</h2>
+        <div class="report-container">
+            <div id="report-table-wrapper">
+                <table class="report-table" id="report-table">
+                    <!-- سيتم تعبئة المحتوى هنا بواسطة JavaScript -->
+                </table>
+            </div>
+            <button id="copy-report-btn" class="copy-btn">Copy to Clipboard</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- الشاشة العائمة (Modal) -->
+<div id="source-modal" class="modal"> <div class="modal-content"> <div class="modal-header"> <h2>المصدر: goldbullioneg.com</h2> <span id="close-modal-btn" class="close-btn">&times;</span> </div> <div class="modal-body"> <iframe src="https://goldbullioneg.com/" title="مصدر أسعار الذهب"></iframe> </div> </div> </div>
+
+<script>
+// --- المتغيرات وعناصر الصفحة ---
+let currencyRates = null, goldPriceUSD = null;
+const OUNCE_IN_GRAMS = 31.1035;
+
+const elements = {
+    gold21Input: document.getElementById('local-gold-21-input'),
+    goldMarketUsdPrice: document.getElementById('gold-usd-price'),
+    fairGoldPrice: document.getElementById('fair-gold-price'),
+    bankUsdPrice: document.getElementById('bank-usd-price'),
+    actualGoldPrice: document.getElementById('actual-gold-price'),
+    actualUsdPrice: document.getElementById('actual-usd-price'),
+    premiumValue: document.getElementById('premium-value'),
+    globalGoldPrice: document.getElementById('global-gold-price'),
+    sarPrice: document.getElementById('sar-price'),
+    reportTable: document.getElementById('report-table'),
+    copyReportBtn: document.getElementById('copy-report-btn'),
+    modal: document.getElementById('source-modal'),
+    openModalBtn: document.getElementById('open-modal-btn'),
+    closeModalBtn: document.getElementById('close-modal-btn'),
+};
+
+// --- دالة تنسيق الأرقام ---
+function formatNumber(num, fractionDigits = 2) {
+    const parsedNum = parseFloat(num);
+    if (isNaN(parsedNum)) return "...";
+    return parsedNum.toLocaleString('en-US', {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
+    });
+}
+
+// --- التحكم في الشاشة العائمة ---
+elements.openModalBtn.onclick = () => elements.modal.style.display = 'flex';
+elements.closeModalBtn.onclick = () => elements.modal.style.display = 'none';
+window.onclick = (event) => { if (event.target == elements.modal) elements.modal.style.display = 'none'; }
+
+
+// --- الدالة المركزية للحسابات ---
+function runAllCalculations() {
+    if (!currencyRates || !goldPriceUSD) return;
+
+    const actualPrice21 = parseFloat(elements.gold21Input.value.replace(/,/g, ''));
+    if (isNaN(actualPrice21) || actualPrice21 <= 0) return;
+    elements.actualGoldPrice.textContent = formatNumber(actualPrice21, 0);
+
+    const actualPrice24 = (actualPrice21 / 21) * 24;
+    const actualPrice18 = (actualPrice21 / 21) * 18;
+    const goldPoundPrice = actualPrice21 * 8;
+    const ounceLocalPrice = actualPrice24 * OUNCE_IN_GRAMS;
+    
+    const globalGramPriceInUsd = goldPriceUSD / OUNCE_IN_GRAMS;
+    const goldMarketUsdPriceNum = actualPrice24 / globalGramPriceInUsd;
+    elements.goldMarketUsdPrice.textContent = formatNumber(goldMarketUsdPriceNum, 2);
+    elements.actualUsdPrice.textContent = `(${formatNumber(goldMarketUsdPriceNum, 2)} جنيه للدولار)`;
+
+    const bankUsdPriceNum = currencyRates.EGP;
+    const premium = goldMarketUsdPriceNum - bankUsdPriceNum;
+    elements.premiumValue.textContent = formatNumber(premium, 2);
+    elements.premiumValue.classList.remove('premium-positive', 'premium-negative', 'premium-neutral', 'loader');
+    
+    if (premium > 0.1) elements.premiumValue.classList.add('premium-positive');
+    else if (premium < -0.1) elements.premiumValue.classList.add('premium-negative');
+    else elements.premiumValue.classList.add('premium-neutral');
+    
+    elements.reportTable.innerHTML = `
+        <tbody>
+            <tr><td colspan="3" class="heading">📌 أسعار الذهب الآن في السوق</td></tr>
+            <tr><td class="icon">💍</td><td class="label">عيار 18:</td><td class="value">${formatNumber(actualPrice18, 0)} ج</td></tr>
+            <tr><td class="icon">💍</td><td class="label">عيار 21:</td><td class="value">${formatNumber(actualPrice21, 0)} ج</td></tr>
+            <tr><td class="icon">💍</td><td class="label">عيار 24:</td><td class="value">${formatNumber(actualPrice24, 0)} ج</td></tr>
+            <tr><td class="icon">💎</td><td class="label">سعر الجنيه الذهب:</td><td class="value">${formatNumber(goldPoundPrice, 0)} ج</td></tr>
+            <tr><td class="icon">⏩</td><td class="label">سعر الأونصة محلياً:</td><td class="value">${formatNumber(ounceLocalPrice, 0)} ج</td></tr>
+            <tr><td colspan="3" class="heading">📊 مقارنة وتحليل</td></tr>
+            <tr><td class="icon">⏩</td><td class="label">سعر الأونصة عالمياً:</td><td class="value">$${formatNumber(goldPriceUSD, 2)}</td></tr>
+            <tr><td class="icon">💵</td><td class="label">سعر الدولار (سوق الذهب):</td><td class="value">${formatNumber(goldMarketUsdPriceNum, 2)} ج</td></tr>
+            <tr><td class="icon">💵</td><td class="label">سعر الدولار (البنك):</td><td class="value">${formatNumber(bankUsdPriceNum, 2)} ج</td></tr>
+            <tr><td colspan="3" class="heading">🔔 الأسعار غير شاملة الضريبة والمصنعية</td></tr>
+        </tbody>
+    `;
+    
+    document.querySelectorAll('.loader').forEach(el => el.classList.remove('loader'));
+}
+
+// --- إضافة مراقب لحدث الإدخال ---
+elements.gold21Input.addEventListener('input', runAllCalculations);
+
+// --- *** دالة النسخ الجديدة والمُحسَّنة *** ---
+elements.copyReportBtn.onclick = function() {
+    let reportString = "";
+    elements.reportTable.querySelectorAll('tr').forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td'));
+        if(cells.length === 1 && cells[0].classList.contains('heading')) {
+            reportString += `\n${cells[0].textContent.trim()}\n\n`;
+        } else if (cells.length === 3) {
+            reportString += `${cells[0].textContent.trim()} ${cells[1].textContent.trim()} ${cells[2].textContent.trim()}\n`;
+        }
+    });
+
+    const finalString = reportString.trim();
+
+    function showSuccess() {
+        const originalText = elements.copyReportBtn.textContent;
+        elements.copyReportBtn.textContent = 'تم النسخ!';
+        setTimeout(() => { elements.copyReportBtn.textContent = originalText; }, 2000);
+    }
+
+    // الطريقة الحديثة (تتطلب HTTPS أو localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(finalString).then(showSuccess).catch(err => {
+            console.error('فشل النسخ بالطريقة الحديثة، سيتم محاولة الطريقة القديمة', err);
+            legacyCopy(finalString);
+        });
+    } else {
+        // الطريقة القديمة (تعمل في كل الحالات بما في ذلك file://)
+        legacyCopy(finalString);
+    }
+};
+
+function legacyCopy(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    
+    textArea.select();
+    textArea.setSelectionRange(0, 99999); // For mobile devices
+
+    try {
+        document.execCommand('copy');
+        // استدعاء دالة التأكيد البصري من هنا
+        const originalText = elements.copyReportBtn.textContent;
+        elements.copyReportBtn.textContent = 'تم النسخ!';
+        setTimeout(() => { elements.copyReportBtn.textContent = originalText; }, 2000);
+    } catch (err) {
+        console.error('فشل النسخ بالطريقة القديمة أيضاً', err);
+        alert('عذراً، فشلت عملية النسخ. يرجى محاولة النسخ يدوياً.');
+    } finally {
+        document.body.removeChild(textArea);
+    }
+}
+
+
+// --- جلب البيانات من الواجهتين عند تحميل الصفحة ---
+document.addEventListener('DOMContentLoaded', function() {
+    const currencyApiKey = 'f8ba33b53f77eacb71607219'; 
+    const goldApiKey = 'goldapi-6v0i89smea0s5co-io'; 
+
+    const currencyApiUrl = `https://v6.exchangerate-api.com/v6/${currencyApiKey}/latest/USD`;
+    const goldApiUrl = `https://www.goldapi.io/api/XAU/USD`;
+
+    const currencyPromise = fetch(currencyApiUrl).then(res => res.json());
+    const goldPromise = fetch(goldApiUrl, { headers: { 'x-access-token': goldApiKey } }).then(res => res.json());
+
+    Promise.all([currencyPromise, goldPromise])
+        .then(([currencyData, goldData]) => {
+            if (currencyData.result === 'error') throw new Error(`Currency API Error: ${currencyData['error-type']}`);
+            if (goldData.error) throw new Error(`Gold API Error: ${goldData.error}`);
+            
+            currencyRates = currencyData.conversion_rates;
+            goldPriceUSD = goldData.price;
+
+            elements.globalGoldPrice.textContent = `$${formatNumber(goldPriceUSD, 2)}`;
+            elements.sarPrice.textContent = `${formatNumber(currencyRates.EGP / currencyRates.SAR, 2)} جنيه`;
+            
+            const bankUsdPriceNum = currencyRates.EGP;
+            const globalGramPriceInEGP = (goldPriceUSD / OUNCE_IN_GRAMS) * bankUsdPriceNum;
+            const fair21kPrice = globalGramPriceInEGP * (21 / 24);
+            elements.fairGoldPrice.textContent = formatNumber(fair21kPrice, 0);
+            elements.bankUsdPrice.textContent = `(${formatNumber(bankUsdPriceNum, 2)} جنيه للدولار)`;
+            
+            elements.gold21Input.value = formatNumber(fair21kPrice, 0).replace(/,/g, '');
+            
+            runAllCalculations();
+        })
+        .catch(error => {
+            console.error('API Fetch Error:', error);
+            document.querySelectorAll('.value, .price, .sub-price').forEach(el => {
+                el.textContent = 'فشل التحديث';
+                el.style.color = 'var(--red)';
+            });
+            elements.reportTable.innerHTML = '<tbody><tr><td>فشل تحميل البيانات. يرجى التحقق من اتصالك بالإنترنت وتحديث الصفحة.</td></tr></tbody>';
+        });
+});
+</script>
+
+</body>
+</html>

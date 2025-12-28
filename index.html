@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>المصمم الاحترافي - خلفية مخصصة مع إطار</title>
+    <title>تصميم نعي</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -45,7 +45,6 @@
             background-color: #000; transform-origin: top center; overflow: hidden;
         }
 
-        /* ترتيب الطبقات */
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
         #base-image { z-index: 1; background-size: cover; background-position: center; }
@@ -57,7 +56,7 @@
         }
 
         #overlay-design { 
-            z-index: 10; /* الإطار PNG فوق الخلفية دائماً */
+            z-index: 10; 
             pointer-events: none; 
         }
 
@@ -72,9 +71,12 @@
             text-align: center; color: white; z-index: 20;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
             display: flex; align-items: center; justify-content: center;
+            /* التعديل هنا لضمان بقاء النص في سطر واحد */
+            white-space: nowrap; 
+            overflow: hidden;
         }
 
-        #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; }
+        #text-layer-1 { top: 1200px; height: 100px; font-size: 55px; font-weight: 700; outline: none; }
         #text-layer-2 { top: 1280px; height: 60px; font-size: 40px; cursor: pointer; }
         #text-layer-3 { top: 1340px; height: 50px; font-size: 25px; font-weight: 400; }
 
@@ -110,7 +112,7 @@
                     <div id="name-background"></div>
                     <img id="overlay-design" class="layer" src="https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png">
                     
-                    <div id="text-layer-1" class="text-layer" contenteditable="true">اسم الفقيد</div>
+                    <div id="text-layer-1" class="text-layer" contenteditable="true" spellcheck="false">اسم الفقيد</div>
                     <div id="text-layer-2" class="text-layer">اختر التاريخ</div>
                     <div id="text-layer-3" class="text-layer"></div>
                 </div>
@@ -126,7 +128,6 @@
             </div>
 
             <div class="btn-row">
-                <!-- هذا الزر يضع صورتك في الخلفية ويُبقي الإطار PNG فوقها -->
                 <label class="btn btn-blue">خلفية مخصصة + إطار <input type="file" hidden onchange="uploadCustomBg(event)"></label>
                 <label class="btn" id="person-btn" style="display:none;">صورة الشخص <input type="file" hidden onchange="uploadPerson(event)"></label>
                 <button class="btn" onclick="toggleDisplay('text-layer-2')">ميلادي</button>
@@ -161,19 +162,23 @@
 
         let photoState = { x: 50, y: 50, scale: 100 };
 
+        // وظيفة ضبط الحجم ليبقى في سطر واحد
         function adjustName() {
-            const MAX = 55, MIN = 20;
+            const MAX = 55, MIN = 15;
             let size = MAX;
             nameLayer.style.fontSize = size + 'px';
-            while (nameLayer.scrollWidth > nameLayer.clientWidth && size > MIN) {
+            
+            // تقليل الحجم إذا تجاوز النص عرض الحاوية (750px)
+            while (nameLayer.scrollWidth > nameLayer.offsetWidth && size > MIN) {
                 size--;
                 nameLayer.style.fontSize = size + 'px';
             }
+
             if (nameBg.style.display === 'block') {
                 setTimeout(() => {
                     const w = nameLayer.scrollWidth;
                     const h = nameLayer.scrollHeight;
-                    nameBg.style.width = (w + 60) + 'px';
+                    nameBg.style.width = (Math.min(w, 750) + 60) + 'px';
                     nameBg.style.height = (h + 20) + 'px';
                     nameBg.style.top = (parseInt(nameLayer.style.top) + (100 - (h + 20)) / 2) + 'px';
                     nameBg.style.left = '50%';
@@ -181,6 +186,12 @@
                 }, 50);
             }
         }
+
+        // منع النزول لسطر جديد عند ضغط Enter
+        nameLayer.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+
         nameLayer.addEventListener('input', adjustName);
 
         function setMode(mode) {
@@ -188,7 +199,7 @@
             container.style.height = '1500px';
             nameBg.style.display = 'none';
             overlay.style.opacity = '1';
-            overlay.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png'; // السكيتش الافتراضي
+            overlay.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png';
             photoArea.style.display = 'none';
             editPanel.style.display = 'none';
             personBtn.style.display = 'none';
@@ -218,13 +229,11 @@
             scaleUI();
         }
 
-        // وظيفة رفع خلفية مخصصة مع بقاء الـ PNG فوقها
         function uploadCustomBg(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    // نضبط الإعدادات لتكون مثل وضع الرجل/المرأة ولكن بصورتك
                     setMode('man'); 
                     baseImg.style.backgroundImage = `url('${ev.target.result}')`;
                     overlay.style.opacity = '1'; 

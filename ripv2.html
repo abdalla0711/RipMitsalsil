@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>مُصمم النعي الاحترافي V13</title>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
-
     <style id="custom-font-style">
         @font-face { font-family: 'AppFont'; src: url('https://files.catbox.moe/hmey7o.ttf'); }
         @font-face { font-family: 'Font1'; src: url('https://files.catbox.moe/d9po9c.ttf'); }
@@ -22,7 +20,6 @@
         @font-face { font-family: 'Font7'; src: url('https://files.catbox.moe/epd1lp.ttf'); }
         body { font-family: 'AppFont', sans-serif; }
     </style>
-
     <style>
         :root { --gold: #d4af37; --bg: #000; --panel: #1a1a1c; --accent: #007aff; --green: #28cd41; --purple: #8e44ad; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -31,52 +28,73 @@
         .viewport { flex: 1; display: flex; justify-content: center; align-items: center; background: #0a0a0a; overflow: hidden; position: relative; }
         #scaling-wrapper { position: relative; width: 1083px; height: 1500px; transform-origin: center center; }
         #design-container { width: 1083px; height: 1500px; background: #000; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.8); }
-
         .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         #base-bg { z-index: 1; background-size: cover; background-position: center; background-repeat: no-repeat; }
         #photo-layer { position: absolute; z-index: 5; background-size: cover; background-position: center; display: none; background-repeat: no-repeat; }
         #overlay-img { z-index: 10; pointer-events: none; }
-
         .watermark { position: absolute; z-index: 30; opacity: 0.8; display: none; pointer-events: none; }
         #wm-app { top: 40px; right: 40px; width: 150px; }
         #wm-yearly { top: 40px; right: 40px; width: 150px; }
+        #name-box-bg { position: absolute; z-index: 18; display: none; background: linear-gradient(180deg, #333, #000); border: 2px solid #555; border-radius: 15px; left: 50%; transform: translateX(-50%); }
+        .text-el { position: absolute; width: 1050px; left: 50%; transform: translateX(-50%); text-align: center; color: white; z-index: 20; text-shadow: 0 5px 25px rgba(0,0,0,1); white-space: nowrap; outline: none; display: flex; align-items: center; justify-content: center; }
+        #custom-img-el { position: absolute; z-index: 15; display: none; pointer-events: none; object-fit: contain; }
 
-        #name-box-bg {
-            position: absolute; z-index: 18; display: none;
-            background: linear-gradient(180deg, #333, #000); border: 2px solid #555; border-radius: 15px;
-            left: 50%; transform: translateX(-50%);
-        }
-
-        .text-el {
-            position: absolute; width: 1050px; left: 50%; transform: translateX(-50%);
-            text-align: center; color: white; z-index: 20; text-shadow: 0 5px 25px rgba(0,0,0,1);
-            white-space: nowrap; outline: none; display: flex; align-items: center; justify-content: center;
-        }
-
-        .controls { background: var(--panel); border-top: 1px solid #333; padding: 15px; overflow-y: auto; max-height: 60vh; scrollbar-width: none; }
+        /* ===== CONTROLS ===== */
+        .controls { background: var(--panel); border-top: 1px solid #333; padding: 8px 10px; overflow-y: auto; max-height: 60vh; scrollbar-width: none; }
         .controls::-webkit-scrollbar { display: none; }
-        .group { margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 8px; }
-        .group-title { font-size: 11px; color: var(--gold); margin-bottom: 8px; display: block; font-weight: bold; }
+
+        /* Accordion */
+        .acc-btn {
+            width: 100%; background: #242426; border: 1px solid #3a3a3c; color: white;
+            padding: 9px 12px; border-radius: 9px; font-family: inherit; font-size: 12px;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 5px; text-align: right;
+        }
+        .acc-btn.open { background: #2c2c2e; border-color: var(--gold); color: var(--gold); }
+        .acc-btn .arrow { font-size: 10px; transition: transform 0.2s; }
+        .acc-btn.open .arrow { transform: rotate(180deg); }
+        .acc-body { display: none; padding: 8px 4px 4px; border-bottom: 1px solid #2a2a2a; margin-bottom: 6px; }
+        .acc-body.open { display: block; }
+
         .row { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
-        
-        .btn { background: #2c2c2e; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; font-family: inherit; font-size: 12px; cursor: pointer; flex: 1; min-width: 85px; text-align: center; }
+        .btn { background: #2c2c2e; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; font-family: inherit; font-size: 12px; cursor: pointer; flex: 1; min-width: 80px; text-align: center; }
         .btn-m { width: 44px; height: 44px; background: #3a3a3c; border: none; color: white; border-radius: 8px; font-size: 18px; cursor: pointer; }
         .btn-m:active { background: var(--gold); color: #000; }
-        
         .btn-purple { background: var(--purple) !important; font-weight: bold; }
         .btn-gold { background: var(--gold) !important; color: #000 !important; font-weight: bold; }
 
         .size-panel { display: flex; flex-direction: column; align-items: center; gap: 3px; background: #121212; padding: 8px; border-radius: 10px; flex: 1; border: 1px solid #333; }
         .size-panel span { font-size: 9px; color: #888; }
 
-        .copy-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .btn-copy { background: #000; color: var(--gold); border: 1px solid #444; padding: 8px 2px; font-size: 10px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+        .copy-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .btn-copy { background: #000; color: var(--gold); border: 1px solid #444; padding: 9px 4px; font-size: 11px; border-radius: 6px; cursor: pointer; font-family: inherit; text-align: center; }
 
-        .download-btn { background: var(--green); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-family: inherit; font-weight: bold; font-size: 16px; margin-top: 5px; }
+        .download-btn { background: var(--green); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-family: inherit; font-weight: bold; font-size: 16px; margin-top: 4px; cursor: pointer; }
+
+        /* Checkpoints */
+        .checkpoint-row { display: flex; flex-wrap: wrap; gap: 5px; }
+        .cp-label { display: flex; align-items: center; gap: 4px; background: #2c2c2e; border: 1.5px solid #444; border-radius: 20px; padding: 5px 9px; cursor: pointer; font-size: 10px; transition: all 0.2s; }
+        .cp-label input[type=radio] { display: none; }
+        .cp-label:has(input:checked) { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; }
+        .cp-label span { white-space: nowrap; }
+
+        /* D-Pad */
+        .ctrl-row { display: flex; gap: 8px; align-items: flex-start; }
+        .dpad-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+        .dpad-row { display: flex; justify-content: center; gap: 2px; }
+        .dpad-mid { align-items: center; gap: 2px; }
+        .dpad-btn { width: 30px; height: 30px; background: #3a3a3c; border: 1px solid #555; color: white; border-radius: 6px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .dpad-btn:active { background: var(--gold); color: #000; }
+        .dpad-center { width: 26px; height: 26px; background: #222; border: 1px solid #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #555; pointer-events: none; }
+        .zoom-btn { width: 30px; height: 30px; background: #3a3a3c; border: 1px solid #555; color: white; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .zoom-btn:active { background: var(--gold); color: #000; }
+
+        /* iOS fullscreen */
+        .ios-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 9999 !important; }
+        .ios-fullscreen-body { overflow: hidden !important; }
     </style>
 </head>
 <body>
-
     <div class="viewport">
         <div id="scaling-wrapper">
             <div id="design-container">
@@ -86,7 +104,7 @@
                 <img id="wm-app" class="watermark" src="https://i.ibb.co/KcpkBHJ0/Wfyat.png">
                 <img id="wm-yearly" class="watermark" src="https://i.ibb.co/Bk2k79h/Zekra.png">
                 <img id="overlay-img" class="layer" src="https://i.ibb.co/KcpkBHJ0/Wfyat.png">
-                
+                <img id="custom-img-el">
                 <div id="txt-name" class="text-el" contenteditable="true" spellcheck="false">اسم الفقيد</div>
                 <div id="txt-date" class="text-el">اختر التاريخ</div>
                 <div id="txt-hijri" class="text-el"></div>
@@ -95,7 +113,12 @@
     </div>
 
     <div class="controls">
-        <div class="group">
+
+        <!-- ① القوالب -->
+        <button class="acc-btn open" onclick="toggleAcc(this)">
+            <span>🖼 القوالب والصور</span><span class="arrow">▼</span>
+        </button>
+        <div class="acc-body open">
             <div class="row">
                 <button class="btn btn-gold" onclick="setMode('gold')">قالب إطار ذهبي</button>
                 <button class="btn" style="background:#2980b9" onclick="setMode('quran')">قالب القرآن</button>
@@ -103,31 +126,58 @@
             <div class="row">
                 <button class="btn btn-purple" onclick="setMode('man')">صورة رجل</button>
                 <button class="btn btn-purple" onclick="setMode('woman')">صورة امرأة</button>
-                <label class="btn btn-purple" style="background:#6c3483 !important">صورة كاملة مخصصة <input type="file" hidden onchange="upFullBg(event)"></label>
+                <label class="btn btn-purple" style="background:#6c3483 !important;cursor:pointer">صورة كاملة مخصصة<input type="file" hidden onchange="upFullBg(event)"></label>
             </div>
-        </div>
-
-        <div class="group">
-            <span class="group-title">أدوات التحريك والزووم</span>
             <div class="row">
-                <select id="target-sel" class="btn" style="flex:2">
-                    <option value="name">اسم الفقيد</option>
-                    <option value="date">التاريخ</option>
-                    <option value="photo">صورة الشخص</option>
-                    <option value="bg">الخلفية</option>
-                    <option value="wm1">شعار التطبيق</option>
-                    <option value="wm2">شعار السنوية</option>
-                </select>
-                <button class="btn-m" onclick="moveElement(0,-30)">↑</button>
-                <button class="btn-m" onclick="moveElement(0,30)">↓</button>
-                <button class="btn-m" onclick="moveElement(-30,0)">→</button>
-                <button class="btn-m" onclick="moveElement(30,0)">←</button>
-                <button class="btn-m" style="background:var(--accent)" onclick="zoomElement(10)">+</button>
-                <button class="btn-m" style="background:var(--accent)" onclick="zoomElement(-10)">-</button>
+                <button class="btn" style="background:#0e6655;font-size:11px" onclick="enhanceFullBg()">✨ تحسين الصورة المخصصة</button>
             </div>
         </div>
 
-        <div class="group">
+        <!-- ② التحريك والزووم -->
+        <button class="acc-btn open" onclick="toggleAcc(this)">
+            <span>🕹 التحريك والزووم</span><span class="arrow">▼</span>
+        </button>
+        <div class="acc-body open">
+            <div class="ctrl-row">
+                <div style="display:flex;flex-direction:column;gap:3px;align-items:center;">
+                    <div class="dpad-wrap">
+                        <div class="dpad-row"><button class="dpad-btn" onclick="moveElement(0,-30)">▲</button></div>
+                        <div class="dpad-row dpad-mid">
+                            <button class="dpad-btn" onclick="moveElement(-30,0)">◀</button>
+                            <div class="dpad-center">✛</div>
+                            <button class="dpad-btn" onclick="moveElement(30,0)">▶</button>
+                        </div>
+                        <div class="dpad-row"><button class="dpad-btn" onclick="moveElement(0,30)">▼</button></div>
+                    </div>
+                    <div style="display:flex;gap:2px;margin-top:2px;">
+                        <button class="zoom-btn" style="background:var(--accent)" onclick="zoomElement(10)">+</button>
+                        <button class="zoom-btn" style="background:#555" onclick="zoomElement(-10)">−</button>
+                    </div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+                    <div class="checkpoint-row">
+                        <label class="cp-label"><input type="radio" name="target" value="name" checked onchange="setTarget(this.value)"><span>الاسم</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="date" onchange="setTarget(this.value)"><span>التاريخ</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="photo" onchange="setTarget(this.value)"><span>الصورة</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="bg" onchange="setTarget(this.value)"><span>الخلفية</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="custom-img" onchange="setTarget(this.value)"><span>صورة مخصصة</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="wm1" onchange="setTarget(this.value)"><span>شعار 1</span></label>
+                        <label class="cp-label"><input type="radio" name="target" value="wm2" onchange="setTarget(this.value)"><span>شعار 2</span></label>
+                    </div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                        <label class="btn" style="background:#5d4e8a;font-size:10px;padding:7px 5px;cursor:pointer;flex:1;min-width:55px;text-align:center">📷 رفع صورة<input type="file" hidden accept="image/*" onchange="upCustomImg(event)"></label>
+                        <button class="btn" style="background:#c0392b;font-size:10px;padding:7px 5px;flex:1;min-width:45px" onclick="deleteCustomImg()">🗑 حذف</button>
+                        <button class="btn" style="background:#1a5276;font-size:10px;padding:7px 5px;flex:1;min-width:55px" onclick="removeBgCustomImg()">✂ حذف الخلفية</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ النص والخطوط -->
+        <button class="acc-btn" onclick="toggleAcc(this)">
+            <span>✏️ النص والخطوط</span><span class="arrow">▼</span>
+        </button>
+        <div class="acc-body">
             <div class="row">
                 <div class="size-panel">
                     <span>حجم الاسم</span>
@@ -144,86 +194,113 @@
             </div>
             <div class="row">
                 <select class="btn" onchange="applyFont(this.value)" style="flex:1">
-                    <option value="" disabled>خط الاسم</option>
+                    <option value="" disabled selected>خط الاسم</option>
                     <option value="AppFont">الخط الافتراضي</option>
                     <option value="Font1">hand write</option>
                     <option value="Font2">xxxxx</option>
                     <option value="Font3">modern light</option>
-                    <option value="Font4">modern not formal </option>
+                    <option value="Font4">modern not formal</option>
                     <option value="Font5">Bold</option>
                     <option value="Font6">modern</option>
                     <option value="Font7">normal</option>
                 </select>
                 <select class="btn" onchange="applyDateFont(this.value)" style="flex:1">
-                    <option value="" disabled>خط التاريخ</option>
+                    <option value="" disabled selected>خط التاريخ</option>
                     <option value="AppFont">الخط الافتراضي</option>
                     <option value="Font1">hand write</option>
                     <option value="Font2">xxxxx</option>
                     <option value="Font3">modern light</option>
-                    <option value="Font4">modern not formal </option>
+                    <option value="Font4">modern not formal</option>
                     <option value="Font5">Bold</option>
                     <option value="Font6">modern</option>
                     <option value="Font7">normal</option>
                 </select>
             </div>
             <div class="row">
+                <label class="btn" style="background:#444;cursor:pointer">رفع خط خارجي<input type="file" hidden accept=".ttf,.otf" onchange="uploadFont(event)"></label>
+            </div>
+        </div>
+
+        <!-- ④ الشعارات والتاريخ -->
+        <button class="acc-btn" onclick="toggleAcc(this)">
+            <span>🏷 الشعارات والتاريخ</span><span class="arrow">▼</span>
+        </button>
+        <div class="acc-body">
+            <div class="row">
                 <button class="btn" onclick="toggleView('txt-date')">ميلادي</button>
                 <button class="btn" onclick="toggleView('txt-hijri')">هجري</button>
                 <button class="btn" onclick="toggleWM('wm-app')">شعار التطبيق</button>
                 <button class="btn" onclick="toggleWM('wm-yearly')">شعار السنوية</button>
-                <label class="btn" style="background:#444">رفع خط خارجي <input type="file" hidden accept=".ttf,.otf" onchange="uploadFont(event)"></label>
             </div>
             <div class="row">
-                <span style="font-size:11px;color:#888;white-space:nowrap;align-self:center">لون شعار 1:</span>
-                <button class="btn" style="background:#fff;color:#000;min-width:50px" onclick="setWmColor('wm-app','white')">أبيض</button>
-                <button class="btn" style="background:#222;min-width:50px" onclick="setWmColor('wm-app','black')">أسود</button>
-                <button class="btn" style="min-width:50px" onclick="setWmColor('wm-app','original')">أصلي</button>
+                <span style="font-size:11px;color:#888;white-space:nowrap;align-self:center">شعار 1:</span>
+                <button class="btn" style="background:#fff;color:#000;min-width:45px" onclick="setWmColor('wm-app','white')">أبيض</button>
+                <button class="btn" style="background:#222;min-width:45px" onclick="setWmColor('wm-app','black')">أسود</button>
+                <button class="btn" style="min-width:45px" onclick="setWmColor('wm-app','original')">أصلي</button>
                 <span style="font-size:11px;color:#888;white-space:nowrap;align-self:center">شعار 2:</span>
-                <button class="btn" style="background:#fff;color:#000;min-width:50px" onclick="setWmColor('wm-yearly','white')">أبيض</button>
-                <button class="btn" style="background:#222;min-width:50px" onclick="setWmColor('wm-yearly','black')">أسود</button>
-                <button class="btn" style="min-width:50px" onclick="setWmColor('wm-yearly','original')">أصلي</button>
+                <button class="btn" style="background:#fff;color:#000;min-width:45px" onclick="setWmColor('wm-yearly','white')">أبيض</button>
+                <button class="btn" style="background:#222;min-width:45px" onclick="setWmColor('wm-yearly','black')">أسود</button>
+                <button class="btn" style="min-width:45px" onclick="setWmColor('wm-yearly','original')">أصلي</button>
             </div>
         </div>
 
-        <div class="group">
-            <span class="group-title">أدوات النسخ السريع</span>
+        <!-- ⑤ النسخ السريع -->
+        <button class="acc-btn" onclick="toggleAcc(this)">
+            <span>📋 أدوات النسخ السريع</span><span class="arrow">▼</span>
+        </button>
+        <div class="acc-body">
             <div class="copy-group">
                 <button class="btn-copy" onclick="copyPrompt(1)">برومبت إبداعي</button>
                 <button class="btn-copy" onclick="copyPrompt(2)">برومبت الملامح</button>
                 <button class="btn-copy" onclick="copyModifiedName()">نسخ نص النعي</button>
+                <button class="btn-copy" onclick="copyShortNaai()" style="color:#a8d8ea">نسالكم الدعاء</button>
             </div>
         </div>
 
-        <div class="row" style="gap:8px; margin-bottom:0">
+        <!-- زر التحميل وملء الشاشة -->
+        <div class="row" style="gap:8px;margin-bottom:0;margin-top:4px;">
             <button class="download-btn" id="save-btn" onclick="downloadDesign()" style="flex:4">تحميل التصميم النهائي</button>
-            <button class="download-btn" onclick="toggleFullscreen()" style="flex:1; background:#333; font-size:20px; padding:16px 0">⛶</button>
+            <button class="download-btn" onclick="toggleFullscreen()" style="flex:1;background:#333;font-size:20px;padding:15px 0">⛶</button>
         </div>
     </div>
 
     <input type="file" id="photo-input" hidden onchange="upPhotoLayer(event)">
-    <input type="text" id="date-proxy" style="position:fixed; opacity:0; pointer-events:none;">
+    <input type="text" id="date-proxy" style="position:fixed;opacity:0;pointer-events:none;">
 
     <script>
-        const wrapper = document.getElementById('scaling-wrapper');
+        const wrapper   = document.getElementById('scaling-wrapper');
         const container = document.getElementById('design-container');
-        const nameEl = document.getElementById('txt-name');
-        const dateEl = document.getElementById('txt-date');
-        const hijriEl = document.getElementById('txt-hijri');
-        const bgEl = document.getElementById('base-bg');
-        const photoEl = document.getElementById('photo-layer');
-        const nameBox = document.getElementById('name-box-bg');
-        const wmApp = document.getElementById('wm-app');
-        const wmYearly = document.getElementById('wm-yearly');
-        const overlayImg = document.getElementById('overlay-img');
-        const targetSel = document.getElementById('target-sel');
+        const nameEl    = document.getElementById('txt-name');
+        const dateEl    = document.getElementById('txt-date');
+        const hijriEl   = document.getElementById('txt-hijri');
+        const bgEl      = document.getElementById('base-bg');
+        const photoEl   = document.getElementById('photo-layer');
+        const nameBox   = document.getElementById('name-box-bg');
+        const wmApp     = document.getElementById('wm-app');
+        const wmYearly  = document.getElementById('wm-yearly');
+        const overlayImg= document.getElementById('overlay-img');
+        const customImgEl = document.getElementById('custom-img-el');
 
+        // ===== Accordion =====
+        function toggleAcc(btn) {
+            btn.classList.toggle('open');
+            const body = btn.nextElementSibling;
+            body.classList.toggle('open');
+        }
+
+        // ===== Target =====
+        let currentTarget = 'name';
+        function setTarget(val) { currentTarget = val; }
+
+        // ===== State =====
         let cfg = {
             name: { y: 1200, sz: 110 },
             date: { y: 1310, y2: 1385, sz: 62, gap: 75 },
             photo: { x: 50, y: 50, z: 100 },
-            bg: { x: 50, y: 50, z: 100 },
-            wm1: { x: 40, y: 40, s: 150 },
-            wm2: { x: 40, y: 40, s: 150 }
+            bg:   { x: 50, y: 50, z: 100 },
+            wm1:  { x: 40, y: 40, s: 150 },
+            wm2:  { x: 40, y: 40, s: 150 },
+            'custom-img': { x: 541, y: 750, z: 300 }
         };
 
         function autoSize() {
@@ -245,46 +322,38 @@
         }
 
         function setMode(m) {
-            bgEl.style.backgroundImage = 'none'; 
-            photoEl.style.display = 'none'; 
+            bgEl.style.backgroundImage = 'none';
+            photoEl.style.display = 'none';
             nameBox.style.display = 'none';
             overlayImg.style.opacity = '1';
-            overlayImg.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png'; // التصميم الافتراضي للكل
+            overlayImg.src = 'https://i.ibb.co/MkHjQ6yN/sketch1760195853528.png';
             container.style.width = '1083px'; container.style.height = '1500px';
-
-            if (m === 'man') { bgEl.style.backgroundImage = "url('https://i.ibb.co/C5QgVZKN/man2.jpg')"; updatePos(1190, 1315, 1390, 110, 62); }
-            else if (m === 'woman') { bgEl.style.backgroundImage = "url('https://i.ibb.co/dJXKvzJj/woman2.jpg')"; updatePos(1190, 1315, 1390, 110, 62); }
-            else if (m === 'gold') {
+            if (m === 'man')   { bgEl.style.backgroundImage = "url('https://i.ibb.co/C5QgVZKN/man2.jpg')"; updatePos(1190,1315,1390,110,62); }
+            else if (m === 'woman')  { bgEl.style.backgroundImage = "url('https://i.ibb.co/dJXKvzJj/woman2.jpg')"; updatePos(1190,1315,1390,110,62); }
+            else if (m === 'gold')   {
                 container.style.width = '1080px'; container.style.height = '1350px';
-                overlayImg.src = 'https://i.ibb.co/rfbwC7w0/375x444.png'; // الإطار الذهبي فقط هنا
+                overlayImg.src = 'https://i.ibb.co/rfbwC7w0/375x444.png';
                 photoEl.style.display = 'block'; photoEl.style.top = "444px"; photoEl.style.left = "375px";
                 photoEl.style.width = "343px"; photoEl.style.height = "486px";
-                updatePos(980, 1100, 1165, 105, 60);
+                updatePos(980,1100,1165,105,60);
                 setTimeout(() => document.getElementById('photo-input').click(), 200);
             } else if (m === 'quran') {
                 bgEl.style.backgroundImage = "url('https://i.ibb.co/QvTDBv4F/QURAN2.jpg')";
                 overlayImg.style.opacity = '0'; nameBox.style.display = 'block';
-                updatePos(950, 1110, 1175, 105, 60);
-            } else if (m === 'custom') { updatePos(1180, 1310, 1375, 110, 62); }
+                updatePos(950,1110,1175,105,60);
+            } else if (m === 'custom') { updatePos(1180,1310,1375,110,62); }
             autoSize(); scaleUI();
         }
 
-        function updatePos(y1, y2, y3, sz1, sz2) {
-            cfg.name.y = y1; cfg.date.y = y2; cfg.date.y2 = y3; cfg.name.sz = sz1; cfg.date.sz = sz2;
-            cfg.date.gap = y3 - y2;
-            nameEl.style.top = y1 + 'px'; dateEl.style.top = y2 + 'px'; hijriEl.style.top = y3 + 'px';
-            dateEl.style.fontSize = sz2 + 'px'; hijriEl.style.fontSize = Math.max(sz2 - 10, 28) + 'px';
+        function updatePos(y1,y2,y3,sz1,sz2) {
+            cfg.name.y=y1; cfg.date.y=y2; cfg.date.y2=y3; cfg.name.sz=sz1; cfg.date.sz=sz2;
+            cfg.date.gap=y3-y2;
+            nameEl.style.top=y1+'px'; dateEl.style.top=y2+'px'; hijriEl.style.top=y3+'px';
+            dateEl.style.fontSize=sz2+'px'; hijriEl.style.fontSize=Math.max(sz2-10,28)+'px';
         }
 
-        function applyFont(fontName) {
-            nameEl.style.fontFamily = fontName;
-            autoSize();
-        }
-
-        function applyDateFont(fontName) {
-            dateEl.style.fontFamily = fontName;
-            hijriEl.style.fontFamily = fontName;
-        }
+        function applyFont(f)     { nameEl.style.fontFamily = f; autoSize(); }
+        function applyDateFont(f) { dateEl.style.fontFamily = f; hijriEl.style.fontFamily = f; }
 
         function changeDateGap(v) {
             cfg.date.gap += v;
@@ -293,136 +362,301 @@
         }
 
         function moveElement(x, y) {
-            const t = targetSel.value;
-            if (t === 'name') { cfg.name.y += y; nameEl.style.top = cfg.name.y + 'px'; autoSize(); }
-            else if (t === 'date') { cfg.date.y += y; cfg.date.y2 += y; dateEl.style.top = cfg.date.y + 'px'; hijriEl.style.top = cfg.date.y2 + 'px'; }
-            else if (t === 'photo') { cfg.photo.x += x/8; cfg.photo.y += y/8; updateL(photoEl, cfg.photo); }
-            else if (t === 'bg') { cfg.bg.x += x/8; cfg.bg.y += y/8; updateL(bgEl, cfg.bg); }
-            else if (t === 'wm1') { cfg.wm1.x -= x/5; cfg.wm1.y += y/5; wmApp.style.top = cfg.wm1.y+'px'; wmApp.style.right = cfg.wm1.x+'px'; }
-            else if (t === 'wm2') { cfg.wm2.x -= x/5; cfg.wm2.y += y/5; wmYearly.style.top = cfg.wm2.y+'px'; wmYearly.style.right = cfg.wm2.x+'px'; }
+            const t = currentTarget;
+            if (t==='name')  { cfg.name.y+=y; nameEl.style.top=cfg.name.y+'px'; autoSize(); }
+            else if (t==='date')  { cfg.date.y+=y; cfg.date.y2+=y; dateEl.style.top=cfg.date.y+'px'; hijriEl.style.top=cfg.date.y2+'px'; }
+            else if (t==='photo') { cfg.photo.x+=x/8; cfg.photo.y+=y/8; updateL(photoEl,cfg.photo); }
+            else if (t==='bg')    { cfg.bg.x+=x/8; cfg.bg.y+=y/8; updateL(bgEl,cfg.bg); }
+            else if (t==='wm1')   { cfg.wm1.x-=x/5; cfg.wm1.y+=y/5; wmApp.style.top=cfg.wm1.y+'px'; wmApp.style.right=cfg.wm1.x+'px'; }
+            else if (t==='wm2')   { cfg.wm2.x-=x/5; cfg.wm2.y+=y/5; wmYearly.style.top=cfg.wm2.y+'px'; wmYearly.style.right=cfg.wm2.x+'px'; }
+            else if (t==='custom-img') { cfg['custom-img'].x+=x; cfg['custom-img'].y+=y; updateCustomImg(); }
         }
 
         function zoomElement(v) {
-            const t = targetSel.value;
-            if (t === 'photo') { cfg.photo.z += v; updateL(photoEl, cfg.photo); }
-            else if (t === 'bg') { cfg.bg.z += v; updateL(bgEl, cfg.bg); }
-            else if (t === 'wm1') { cfg.wm1.s += v; wmApp.style.width = cfg.wm1.s+'px'; }
-            else if (t === 'wm2') { cfg.wm2.s += v; wmYearly.style.width = cfg.wm2.s+'px'; }
+            const t = currentTarget;
+            if (t==='photo') { cfg.photo.z+=v; updateL(photoEl,cfg.photo); }
+            else if (t==='bg')    { cfg.bg.z+=v; updateL(bgEl,cfg.bg); }
+            else if (t==='wm1')   { cfg.wm1.s+=v; wmApp.style.width=cfg.wm1.s+'px'; }
+            else if (t==='wm2')   { cfg.wm2.s+=v; wmYearly.style.width=cfg.wm2.s+'px'; }
+            else if (t==='custom-img') { cfg['custom-img'].z=Math.max(20,cfg['custom-img'].z+v*5); updateCustomImg(); }
         }
 
-        function updateL(el, data) { el.style.backgroundPosition = `${data.x}% ${data.y}%`; el.style.backgroundSize = `${data.z}%`; }
+        function updateL(el,d) { el.style.backgroundPosition=`${d.x}% ${d.y}%`; el.style.backgroundSize=`${d.z}%`; }
+
+        function updateCustomImg() {
+            const c = cfg['custom-img'];
+            customImgEl.style.left = c.x + 'px';
+            customImgEl.style.top  = c.y + 'px';
+            customImgEl.style.width = c.z + 'px';
+            customImgEl.style.transform = 'translate(-50%,-50%)';
+        }
 
         function changeFontSize(type, v) {
-            if (type === 'name') { cfg.name.sz += v; autoSize(); }
+            if (type==='name') { cfg.name.sz+=v; autoSize(); }
             else {
-                cfg.date.sz += v;
-                dateEl.style.fontSize = cfg.date.sz + 'px';
-                hijriEl.style.fontSize = Math.max(cfg.date.sz - 10, 28) + 'px';
-                // تعديل المسافة تلقائياً مع حجم التاريخ
-                const autoGap = Math.round(cfg.date.sz * 1.3);
-                cfg.date.gap = autoGap;
-                cfg.date.y2 = cfg.date.y + autoGap;
-                hijriEl.style.top = cfg.date.y2 + 'px';
+                cfg.date.sz+=v;
+                dateEl.style.fontSize=cfg.date.sz+'px';
+                hijriEl.style.fontSize=Math.max(cfg.date.sz-10,28)+'px';
+                const g=Math.round(cfg.date.sz*1.3); cfg.date.gap=g; cfg.date.y2=cfg.date.y+g;
+                hijriEl.style.top=cfg.date.y2+'px';
             }
         }
 
-        function safeCopy(text, successMsg) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => alert(successMsg)).catch(() => fallbackCopy(text, successMsg));
-            } else {
-                fallbackCopy(text, successMsg);
-            }
+        // ===== Upload functions =====
+        function upFullBg(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                setMode('custom');
+                bgEl.style.backgroundImage = `url('${ev.target.result}')`;
+                window._lastFullBgDataUrl = ev.target.result;
+            };
+            r.readAsDataURL(f);
         }
 
-        function fallbackCopy(text, successMsg) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-            document.body.appendChild(ta);
-            ta.focus(); ta.select();
-            try { document.execCommand('copy'); alert(successMsg); }
-            catch(e) { alert('فشل النسخ — يرجى النسخ يدوياً'); }
+        function upPhotoLayer(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => { photoEl.style.backgroundImage=`url('${ev.target.result}')`; photoEl.style.display='block'; };
+            r.readAsDataURL(f);
+        }
+
+        function upCustomImg(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                customImgEl.src = ev.target.result;
+                customImgEl.style.display = 'block';
+                updateCustomImg();
+                const radio = document.querySelector('input[name="target"][value="custom-img"]');
+                if (radio) { radio.checked = true; setTarget('custom-img'); }
+            };
+            r.readAsDataURL(f);
+        }
+
+        function uploadFont(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                const fn = 'UserFont_' + Date.now();
+                const n = new FontFace(fn, `url(${ev.target.result})`);
+                n.load().then(res => { document.fonts.add(res); applyFont(fn); });
+            };
+            r.readAsArrayBuffer(f);
+        }
+
+        function deleteCustomImg() { customImgEl.src=''; customImgEl.style.display='none'; }
+
+        function removeBgCustomImg() {
+            if (!customImgEl.src || customImgEl.style.display==='none') { alert('لا توجد صورة مخصصة'); return; }
+            const canvas=document.createElement('canvas');
+            canvas.width=customImgEl.naturalWidth; canvas.height=customImgEl.naturalHeight;
+            const ctx=canvas.getContext('2d');
+            ctx.drawImage(customImgEl,0,0);
+            const data=ctx.getImageData(0,0,canvas.width,canvas.height);
+            const d=data.data;
+            for (let i=0;i<d.length;i+=4) { if (d[i]>200&&d[i+1]>200&&d[i+2]>200) d[i+3]=0; }
+            ctx.putImageData(data,0,0);
+            customImgEl.src=canvas.toDataURL('image/png');
+        }
+
+        function toggleView(id) { const el=document.getElementById(id); el.style.display=(el.style.display==='none')?'flex':'none'; }
+        function toggleWM(id)   { const el=document.getElementById(id); el.style.display=(el.style.display==='block')?'none':'block'; }
+
+        function setWmColor(id,color) {
+            const el=document.getElementById(id);
+            if (color==='white') el.style.filter='brightness(0) invert(1)';
+            else if (color==='black') el.style.filter='brightness(0)';
+            else el.style.filter='none';
+        }
+
+        // ===== Copy functions =====
+        function safeCopy(text, msg) {
+            if (navigator.clipboard && navigator.clipboard.writeText)
+                navigator.clipboard.writeText(text).then(()=>alert(msg)).catch(()=>fallbackCopy(text,msg));
+            else fallbackCopy(text,msg);
+        }
+        function fallbackCopy(text, msg) {
+            const ta=document.createElement('textarea'); ta.value=text;
+            ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            try { document.execCommand('copy'); alert(msg); } catch(e) { alert('فشل النسخ'); }
             document.body.removeChild(ta);
         }
 
-        function setWmColor(id, color) {
-            const el = document.getElementById(id);
-            if (color === 'white') { el.style.filter = 'brightness(0) invert(1)'; }
-            else if (color === 'black') { el.style.filter = 'brightness(0)'; }
-            else { el.style.filter = 'none'; }
-        }
-
         function copyPrompt(num) {
-            const p1 = `Transform this phone-camera portrait into an ultra realistic professional studio photograph while fully preserving the person’s true identity and original facial features. If the original image is cropped too close to the face, naturally extend the composition to include full shoulders and the upper body down to mid-torso while maintaining realistic anatomy, clothing continuity, posture, and perspective. Replace the background with a clean pure white professional studio backdrop. Focus heavily on realistic professional studio lighting and subtle cinematic light accents rather than aggressive AI enhancement. Add subtle professional studio light accents: thin soft rim light around the shoulders, hair, and outer body edges, gentle contour highlights along one side of the face and jawline, a delicate highlight along the edge of the nose, soft light shaping around the cheeks and facial structure, natural catchlights in the eyes, realistic studio shadow transitions and light falloff, authentic DSLR studio lighting atmosphere. The lighting accents must remain subtle, realistic, and naturally blended — not glowing, overexposed, HDR-like, or artificial. Keep facial enhancement minimal and realistic: preserve exact facial identity and expression, maintain natural skin texture and pores, avoid plastic skin and over-smoothing, avoid exaggerated sharpening, avoid beauty-filter appearance, do not alter facial proportions. Improve image quality moderately and naturally: reduce phone-camera noise, slightly improve clarity and detail, preserve authentic texture, realistic high-end camera appearance without overprocessing. Final result should look like a genuine professional white-background studio portrait captured with high-end DSLR lighting equipment, while remaining completely natural and believable.`;
-            const p2 = `Transform this phone-camera portrait into an ultra-realistic professional studio photograph while STRICTLY preserving the person’s exact real-life identity, facial structure, proportions, expression, age, skin details, and unique facial characteristics. ABSOLUTE PRIORITY: The final result must look like the SAME real person from the original image — not a reinterpretation, beautified version, AI-generated lookalike, or modified face. Do NOT redesign, stylize, reconstruct, beautify, or reinterpret the face in any way. Identity preservation is FAR more important than enhancement quality. Maintain: exact eye shape and spacing, exact nose shape and proportions, exact mouth shape, exact jawline and face geometry, exact eyebrow structure, exact skin tone, exact hairline, exact facial asymmetries, exact expression and facial tension, all unique recognizable features. Do NOT: change facial proportions, modify bone structure, enlarge eyes, sharpen jawline, alter hairstyle, smooth skin excessively, add makeup effects, beautify the subject, generate a different person, apply “AI beauty” aesthetics, create CGI-like skin, create synthetic facial symmetry. The output should feel like the ORIGINAL photo professionally relit and professionally photographed — NOT regenerated. If the original image is cropped too close to the face, naturally extend the composition to include realistic shoulders and upper torso while maintaining accurate anatomy, clothing continuity, posture, camera perspective, and original body proportions. Replace the background with a clean pure white professional photography studio backdrop. Lighting should emulate authentic high-end DSLR studio photography: soft diffused key light, subtle natural rim lighting around hair and shoulders, realistic contour lighting on face structure, gentle cheek and jaw shaping, delicate nose-edge highlight, natural eye catchlights, smooth realistic shadow falloff, subtle cinematic depth without dramatic contrast. Lighting must remain VERY natural and understated: no HDR effect, no glowing edges, no overexposure, no artificial shine, no exaggerated cinematic grading, no fantasy lighting. Skin treatment must remain highly realistic: preserve natural pores, preserve authentic skin texture, preserve fine facial details, preserve natural imperfections, avoid plastic skin, avoid over-retouching, avoid excessive denoising, avoid oversharpening. Enhance image quality ONLY moderately: lightly reduce phone-camera noise, slightly improve clarity, preserve authentic texture, maintain realistic DSLR depth and detail, avoid aggressive AI upscaling artifacts. The final image should look indistinguishable from a genuine professional white-background studio portrait captured with premium DSLR equipment and professional studio lighting — while remaining completely natural, believable, and 100% faithful to the original person.`;
-            safeCopy(num === 1 ? p1 : p2, "تم نسخ البرومبت بنجاح ✓");
+            const p1=`Transform this phone-camera portrait into an ultra realistic professional studio photograph while fully preserving the person's true identity and original facial features. If the original image is cropped too close to the face, naturally extend the composition to include full shoulders and the upper body down to mid-torso while maintaining realistic anatomy, clothing continuity, posture, and perspective. Replace the background with a clean pure white professional studio backdrop. Focus heavily on realistic professional studio lighting and subtle cinematic light accents rather than aggressive AI enhancement. Add subtle professional studio light accents: thin soft rim light around the shoulders, hair, and outer body edges, gentle contour highlights along one side of the face and jawline, a delicate highlight along the edge of the nose, soft light shaping around the cheeks and facial structure, natural catchlights in the eyes, realistic studio shadow transitions and light falloff, authentic DSLR studio lighting atmosphere. The lighting accents must remain subtle, realistic, and naturally blended — not glowing, overexposed, HDR-like, or artificial. Keep facial enhancement minimal and realistic: preserve exact facial identity and expression, maintain natural skin texture and pores, avoid plastic skin and over-smoothing, avoid exaggerated sharpening, avoid beauty-filter appearance, do not alter facial proportions. Improve image quality moderately and naturally: reduce phone-camera noise, slightly improve clarity and detail, preserve authentic texture, realistic high-end camera appearance without overprocessing. Final result should look like a genuine professional white-background studio portrait captured with high-end DSLR lighting equipment, while remaining completely natural and believable.`;
+            const p2=`Transform this phone-camera portrait into an ultra-realistic professional studio photograph while STRICTLY preserving the person's exact real-life identity, facial structure, proportions, expression, age, skin details, and unique facial characteristics. ABSOLUTE PRIORITY: The final result must look like the SAME real person from the original image — not a reinterpretation, beautified version, AI-generated lookalike, or modified face. Do NOT redesign, stylize, reconstruct, beautify, or reinterpret the face in any way. Identity preservation is FAR more important than enhancement quality. Maintain: exact eye shape and spacing, exact nose shape and proportions, exact mouth shape, exact jawline and face geometry, exact eyebrow structure, exact skin tone, exact hairline, exact facial asymmetries, exact expression and facial tension, all unique recognizable features. Do NOT: change facial proportions, modify bone structure, enlarge eyes, sharpen jawline, alter hairstyle, smooth skin excessively, add makeup effects, beautify the subject, generate a different person, apply "AI beauty" aesthetics, create CGI-like skin, create synthetic facial symmetry. The output should feel like the ORIGINAL photo professionally relit and professionally photographed — NOT regenerated. If the original image is cropped too close to the face, naturally extend the composition to include realistic shoulders and upper torso while maintaining accurate anatomy, clothing continuity, posture, camera perspective, and original body proportions. Replace the background with a clean pure white professional photography studio backdrop. Lighting should emulate authentic high-end DSLR studio photography: soft diffused key light, subtle natural rim lighting around hair and shoulders, realistic contour lighting on face structure, gentle cheek and jaw shaping, delicate nose-edge highlight, natural eye catchlights, smooth realistic shadow falloff, subtle cinematic depth without dramatic contrast. Lighting must remain VERY natural and understated: no HDR effect, no glowing edges, no overexposure, no artificial shine, no exaggerated cinematic grading, no fantasy lighting. Skin treatment must remain highly realistic: preserve natural pores, preserve authentic skin texture, preserve fine facial details, preserve natural imperfections, avoid plastic skin, avoid over-retouching, avoid excessive denoising, avoid oversharpening. Enhance image quality ONLY moderately: lightly reduce phone-camera noise, slightly improve clarity, preserve authentic texture, maintain realistic DSLR depth and detail, avoid aggressive AI upscaling artifacts. The final image should look indistinguishable from a genuine professional white-background studio portrait captured with premium DSLR equipment and professional studio lighting — while remaining completely natural, believable, and 100% faithful to the original person.`;
+            safeCopy(num===1?p1:p2,"تم نسخ البرومبت بنجاح ✓");
         }
 
         function copyModifiedName() {
-            const name = nameEl.innerText.trim();
-            const txt = "انا لله وانا الية راجعون\n" + name + "\nنسالكم الدعاء بالرحمه والمغفرة";
-            safeCopy(txt, "تم نسخ نص النعي بالكامل ✓");
+            const name=nameEl.innerText.trim();
+            safeCopy("انا لله وانا الية راجعون\n"+name+"\nنسالكم الدعاء بالرحمه والمغفرة","تم نسخ نص النعي بالكامل ✓");
         }
 
-        function upFullBg(e) { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = ev => { setMode('custom'); bgEl.style.backgroundImage=`url('${ev.target.result}')`; }; r.readAsDataURL(f); } }
-        function upPhotoLayer(e) { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = ev => { photoEl.style.backgroundImage=`url('${ev.target.result}')`; photoEl.style.display='block'; }; r.readAsDataURL(f); } }
-        function uploadFont(e) { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = (ev) => { const fn = 'UserFont_' + Date.now(); const n = new FontFace(fn, `url(${ev.target.result})`); n.load().then(res => { document.fonts.add(res); applyFont(fn); }); }; r.readAsArrayBuffer(f); } }
-        function toggleView(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'none') ? 'flex' : 'none'; }
-        function toggleWM(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+        function copyShortNaai() {
+            const name=nameEl.innerText.trim();
+            safeCopy("نسالكم الدعاء بالرحمة والمغفرة\n"+name,"تم نسخ النص بنجاح ✓");
+        }
 
+        // ===== Enhance function =====
+        const ENHANCE_PROMPT = "Transform this phone-camera portrait into an ultra-realistic professional studio photograph while STRICTLY preserving the person's exact real-life identity, facial structure, proportions, expression, age, skin details, and unique facial characteristics.\n\nABSOLUTE PRIORITY: The final result must look like the SAME real person from the original image — not a reinterpretation, beautified version, AI-generated lookalike, or modified face. Do NOT redesign, stylize, reconstruct, beautify, or reinterpret the face in any way. Identity preservation is FAR more important than enhancement quality.\n\nMaintain: exact eye shape and spacing, exact nose shape and proportions, exact mouth shape, exact jawline and face geometry, exact eyebrow structure, exact skin tone, exact hairline, exact facial asymmetries, exact expression and facial tension, all unique recognizable features.\n\nDo NOT: change facial proportions, modify bone structure, enlarge eyes, sharpen jawline, alter hairstyle, smooth skin excessively, add makeup effects, beautify the subject, generate a different person, apply AI beauty aesthetics, create CGI-like skin, create synthetic facial symmetry.\n\nThe output should feel like the ORIGINAL photo professionally relit and professionally photographed — NOT regenerated.\n\nIf the original image is cropped too close to the face, naturally extend the composition to include realistic shoulders and upper torso while maintaining accurate anatomy, clothing continuity, posture, camera perspective, and original body proportions.\n\nReplace the background with a clean pure white professional photography studio backdrop.\n\nLighting should emulate authentic high-end DSLR studio photography: soft diffused key light, subtle natural rim lighting around hair and shoulders, realistic contour lighting on face structure, gentle cheek and jaw shaping, delicate nose-edge highlight, natural eye catchlights, smooth realistic shadow falloff, subtle cinematic depth without dramatic contrast. Lighting must remain VERY natural and understated: no HDR effect, no glowing edges, no overexposure, no artificial shine, no exaggerated cinematic grading, no fantasy lighting.\n\nSkin treatment must remain highly realistic: preserve natural pores, preserve authentic skin texture, preserve fine facial details, preserve natural imperfections, avoid plastic skin, avoid over-retouching, avoid excessive denoising, avoid oversharpening.\n\nEnhance image quality ONLY moderately: lightly reduce phone-camera noise, slightly improve clarity, preserve authentic texture, maintain realistic DSLR depth and detail, avoid aggressive AI upscaling artifacts.\n\nThe final image should look indistinguishable from a genuine professional white-background studio portrait captured with premium DSLR equipment and professional studio lighting — while remaining completely natural, believable, and 100% faithful to the original person.";
+
+        function showOv(msg, pct) {
+            let ov = document.getElementById('enh-ov');
+            if (!ov) {
+                ov = document.createElement('div');
+                ov.id = 'enh-ov';
+                ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.87);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:inherit;direction:rtl;';
+                ov.innerHTML = '<div style="font-size:34px">✨</div><div id="enh-ov-msg" style="color:#fff;font-size:14px;text-align:center;max-width:260px;line-height:1.7;"></div><div style="width:220px;height:5px;background:#333;border-radius:3px;overflow:hidden;"><div id="enh-ov-bar" style="height:100%;background:#d4af37;border-radius:3px;transition:width 0.4s;width:0%;"></div></div>';
+                document.body.appendChild(ov);
+            }
+            document.getElementById('enh-ov-msg').innerText = msg;
+            document.getElementById('enh-ov-bar').style.width = pct + '%';
+        }
+        function hideOv() { const o=document.getElementById('enh-ov'); if(o) o.remove(); }
+
+        async function enhanceFullBg() {
+            if (!window._lastFullBgDataUrl) { alert('يرجى رفع صورة كاملة مخصصة أولاً'); return; }
+            showOv('جاري تحليل الصورة...', 10);
+            try {
+                const dataUrl = window._lastFullBgDataUrl;
+                const base64  = dataUrl.split(',')[1];
+                const mimeType = (dataUrl.match(/data:(image\/[^;]+);/) || [])[1] || 'image/jpeg';
+
+                showOv('Claude يفحص جودة الصورة...', 30);
+
+                const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'apiapiapiapiapi',
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 400,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+                                { type: 'text', text: 'انظر لهذه الصورة وأخبرني بإيجاز شديد (3 نقاط فقط بالعربية): 1) جودة الإضاءة الحالية 2) نوع الخلفية 3) أهم شيء يحتاج تحسيناً' }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.error?.message || 'HTTP ' + resp.status);
+                }
+
+                const data = await resp.json();
+                const analysis = (data.content || []).find(b => b.type === 'text')?.text || 'تحليل غير متاح';
+
+                showOv('نسخ البرومبت الاحترافي...', 80);
+                try { await navigator.clipboard.writeText(ENHANCE_PROMPT); } catch(e) {}
+                showOv('اكتمل ✓', 100);
+                await new Promise(r => setTimeout(r, 350));
+                hideOv();
+
+                // Result modal
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit;direction:rtl;';
+                const inner = document.createElement('div');
+                inner.style.cssText = 'background:#1a1a1c;border:1px solid #444;border-radius:16px;padding:20px;max-width:340px;width:100%;';
+                inner.innerHTML = `
+                  <div style="font-size:18px;color:#d4af37;font-weight:bold;margin-bottom:10px;">✨ تحليل الصورة</div>
+                  <div style="font-size:13px;color:#ccc;line-height:1.8;margin-bottom:12px;white-space:pre-wrap;">${analysis}</div>
+                  <div style="background:#0d3b2e;border:1px solid #1a7a5a;border-radius:8px;padding:9px;font-size:12px;color:#5dde9a;margin-bottom:10px;">
+                    ✅ تم نسخ البرومبت — الصقه في <strong>ChatGPT-4o</strong> أو <strong>Gemini</strong> مع الصورة
+                  </div>
+                  <div style="font-size:11px;color:#888;margin-bottom:14px;">بعد التحسين ارفع الصورة الجديدة من زر <em>صورة كاملة مخصصة</em></div>
+                  <div style="display:flex;gap:8px;">
+                    <button id="enh-close" style="flex:1;background:#333;color:white;border:none;padding:11px;border-radius:8px;cursor:pointer;font-family:inherit;">إغلاق</button>
+                    <button id="enh-recopy" style="flex:2;background:#d4af37;color:#000;border:none;padding:11px;border-radius:8px;font-weight:bold;cursor:pointer;font-family:inherit;">📋 نسخ مجدداً</button>
+                  </div>`;
+                modal.appendChild(inner);
+                inner.querySelector('#enh-close').onclick = () => modal.remove();
+                inner.querySelector('#enh-recopy').onclick = () => {
+                    navigator.clipboard.writeText(ENHANCE_PROMPT).then(() => {
+                        inner.querySelector('#enh-recopy').innerText = '✅ تم!';
+                        setTimeout(() => { inner.querySelector('#enh-recopy').innerText = '📋 نسخ مجدداً'; }, 1500);
+                    });
+                };
+                document.body.appendChild(modal);
+
+            } catch(err) {
+                hideOv();
+                alert('خطأ في التحليل: ' + err.message);
+            }
+        }
+
+        // ===== Date =====
         const fp = flatpickr("#date-proxy", {
             locale: "ar",
             onChange: (dates, str) => {
-                dateEl.innerText = str.replace(/-/g, '/');
-                hijriEl.innerText = "الموافق " + new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(dates[0]);
+                dateEl.innerText = str.replace(/-/g,'/');
+                hijriEl.innerText = "الموافق " + new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(dates[0]);
             }
         });
         dateEl.onclick = () => fp.open();
 
+        // ===== Download =====
         async function downloadDesign() {
-            const btn = document.getElementById('save-btn'); btn.innerText = "جاري التحميل...";
-            const oldT = wrapper.style.transform; wrapper.style.transform = 'none';
+            const btn=document.getElementById('save-btn'); btn.innerText="جاري التحميل...";
+            const oldT=wrapper.style.transform; wrapper.style.transform='none';
             try {
-                const c = await html2canvas(container, { useCORS: true, scale: 2 });
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const c=await html2canvas(container,{useCORS:true,scale:2});
+                const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
                 if (isIOS) {
-                    // iOS: فتح الصورة في تبويب جديد ليتمكن المستخدم من الحفظ
-                    c.toBlob((blob) => {
-                        const url = URL.createObjectURL(blob);
-                        const newTab = window.open(url, '_blank');
-                        if (!newTab) {
-                            // إذا منع المتصفح فتح التبويب
-                            const img = document.createElement('img');
-                            img.src = c.toDataURL('image/png');
-                            img.style.cssText = 'position:fixed;top:0;left:0;width:100%;z-index:9999;background:#000';
+                    c.toBlob(blob=>{
+                        const url=URL.createObjectURL(blob);
+                        const tab=window.open(url,'_blank');
+                        if (!tab) {
+                            const img=document.createElement('img');
+                            img.src=c.toDataURL('image/png');
+                            img.style.cssText='position:fixed;top:0;left:0;width:100%;z-index:9999;background:#000';
                             document.body.appendChild(img);
                             alert("اضغط مطولاً على الصورة ثم اختر «حفظ الصورة»");
-                            img.addEventListener('click', () => img.remove());
-                        } else {
-                            alert("تم فتح الصورة في تبويب جديد — اضغط مطولاً عليها ثم اختر «حفظ الصورة»");
-                        }
-                    }, 'image/png');
+                            img.addEventListener('click',()=>img.remove());
+                        } else { alert("تم فتح الصورة في تبويب جديد — اضغط مطولاً عليها ثم اختر «حفظ الصورة»"); }
+                    },'image/png');
                 } else {
-                    c.toBlob((blob) => {
-                        const u = URL.createObjectURL(blob);
-                        const l = document.createElement('a'); l.href = u; l.download = `Obituary_${Date.now()}.png`; l.click();
-                    }, 'image/png');
+                    c.toBlob(blob=>{
+                        const u=URL.createObjectURL(blob);
+                        const l=document.createElement('a'); l.href=u; l.download=`Obituary_${Date.now()}.png`; l.click();
+                    },'image/png');
                 }
-            } catch (e) { alert("فشل التحميل"); }
-            wrapper.style.transform = oldT; btn.innerText = "تحميل التصميم النهائي";
-            scaleUI();
+            } catch(e) { alert("فشل التحميل"); }
+            wrapper.style.transform=oldT; btn.innerText="تحميل التصميم النهائي"; scaleUI();
         }
 
+        // ===== Fullscreen =====
         function toggleFullscreen() {
-            const el = document.querySelector('.viewport');
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (el.requestFullscreen) el.requestFullscreen();
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            const vp=document.querySelector('.viewport');
+            const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+            if (isIOS) {
+                vp.classList.toggle('ios-fullscreen');
+                document.body.classList.toggle('ios-fullscreen-body');
+                setTimeout(scaleUI,50); return;
+            }
+            if (!document.fullscreenElement&&!document.webkitFullscreenElement) {
+                if (vp.requestFullscreen) vp.requestFullscreen();
+                else if (vp.webkitRequestFullscreen) vp.webkitRequestFullscreen();
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
+        document.addEventListener('fullscreenchange', scaleUI);
+        document.addEventListener('webkitfullscreenchange', scaleUI);
         window.onload = () => { setMode('man'); window.onresize = scaleUI; };
     </script>
 </body>

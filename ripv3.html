@@ -731,7 +731,9 @@ function scp(t,m){if(navigator.clipboard&&navigator.clipboard.writeText)navigato
 function fbcp(t,m){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');toast('✅ '+m);}catch(e){}document.body.removeChild(ta);}
 function cpName(){scp('انا لله وانا الية راجعون\n'+nameEl.innerText.trim()+'\nنسالكم الدعاء بالرحمه والمغفرة','تم نسخ نص النعي');}
 function cpDua(){scp('نسالكم الدعاء بالرحمة والمغفرة\n'+nameEl.innerText.trim(),'تم النسخ');}
-function cpP(n){const p1='ـــــ';const p2='Transform this phone-camera portrait into an ultra-realistic professional studio photograph while preserving the subject’s EXACT real-world identity with ZERO facial alteration tolerance.
+function cpP(n) {
+    const p1 = '\u0640\u0640\u0640\u0640\u0640'; // كشيدة عربية (U+0640) مكررة 5 مرات
+    const p2 = 'Transform this phone-camera portrait into an ultra-realistic professional studio photograph while preserving the subject\'s EXACT real-world identity with ZERO facial alteration tolerance.
 
 NON-NEGOTIABLE RULE:
 Under absolutely no circumstances may the face, identity, facial anatomy, or recognizable characteristics be changed, reinterpreted, regenerated, beautified, or approximated.
@@ -754,7 +756,7 @@ This is ONLY a professional photographic enhancement and relighting task.
 
 DO NOT create:
 
-- a “better-looking” version,
+- a "better-looking" version,
 - a cleaner interpretation,
 - an AI-generated resemblance,
 - a beautified reconstruction,
@@ -809,7 +811,7 @@ ABSOLUTELY FORBIDDEN:
 - ethnicity shifting,
 - hairstyle redesign,
 - expression alteration,
-- “AI beauty” aesthetics,
+- "AI beauty" aesthetics,
 - identity drift of any kind.
 
 The source image must remain visually traceable and unmistakably identical to the original person at first glance.
@@ -818,9 +820,9 @@ Treat the original image as locked identity reference data.
 The face must be preserved with forensic-level accuracy.
 
 The result should feel like:
-“the exact same original photo captured with expensive professional studio equipment”
+"the exact same original photo captured with expensive professional studio equipment"
 NOT:
-“an AI-generated version of the person.”
+"an AI-generated version of the person."
 
 Background:
 Replace the background with a clean pure-white professional photography studio backdrop.
@@ -886,7 +888,10 @@ Enhancement strength must remain conservative and restrained:
 - maintain authentic texture,
 - preserve natural DSLR realism.
 
-The final image must be indistinguishable from a genuine professionally photographed studio portrait while remaining COMPLETELY faithful to the original human identity with zero noticeable facial deviation.';scp(n===1?p1:p2,'تم نسخ البرومبت');}
+The final image must be indistinguishable from a genuine professionally photographed studio portrait while remaining COMPLETELY faithful to the original human identity with zero noticeable facial deviation.';
+    
+    scp(n === 1 ? p1 : p2, 'تم نسخ البرومبت');
+}
 
 function showOv(m,p){let ov=document.getElementById('_ov');if(!ov){ov=document.createElement('div');ov.id='_ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:inherit;direction:rtl';ov.innerHTML='<div style="font-size:32px">⏳</div><div id="_ovm" style="color:#fff;font-size:13px;text-align:center;max-width:250px;line-height:1.7"></div><div style="width:200px;height:4px;background:#222;border-radius:2px;overflow:hidden"><div id="_ovb" style="height:100%;background:#c9a84c;border-radius:2px;transition:width .4s;width:0%"></div></div>';document.body.appendChild(ov);}document.getElementById('_ovm').innerText=m;document.getElementById('_ovb').style.width=p+'%';}
 function hideOv(){const o=document.getElementById('_ov');if(o)o.remove();}

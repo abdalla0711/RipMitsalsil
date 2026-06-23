@@ -426,8 +426,8 @@ body{font-family:'F0',sans-serif;background:var(--bg);color:var(--text);
   <div id="pg-ai" class="pg">
     <div style="font-size:10px;color:var(--sub);margin-bottom:6px">🤖 برومبتات تحسين صورة الفقيد بالذكاء الاصطناعي:</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-      <button class="bcopy" onclick="cpP(1)">برومبت إبداعي</button>
-      <button class="bcopy" onclick="cpP(2)">برومبت الملامح</button>
+      <button class="bcopy" onclick="cpP(1)">كاشيدا ــــــــ </button>
+      <button class="bcopy" onclick="cpP(2)">برومت تحسين</button>
     </div>
     <div style="font-size:10px;color:var(--sub);margin-bottom:6px">📋 نسخ نصوص النشر:</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
@@ -731,7 +731,162 @@ function scp(t,m){if(navigator.clipboard&&navigator.clipboard.writeText)navigato
 function fbcp(t,m){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');toast('✅ '+m);}catch(e){}document.body.removeChild(ta);}
 function cpName(){scp('انا لله وانا الية راجعون\n'+nameEl.innerText.trim()+'\nنسالكم الدعاء بالرحمه والمغفرة','تم نسخ نص النعي');}
 function cpDua(){scp('نسالكم الدعاء بالرحمة والمغفرة\n'+nameEl.innerText.trim(),'تم النسخ');}
-function cpP(n){const p1='Transform this phone-camera portrait into an ultra realistic professional studio photograph while fully preserving the person true identity. Replace background with clean pure white professional studio backdrop. Add subtle studio light accents: rim light, contour highlights, nose-edge highlight, natural eye catchlights. Keep facial enhancement minimal. Improve quality moderately.';const p2='Transform this phone-camera portrait into an ultra-realistic professional studio photograph while STRICTLY preserving the persons exact identity. ABSOLUTE PRIORITY: same real person — no reinterpretation. Identity preservation is FAR more important than enhancement. Maintain exact features. Replace background with white studio backdrop. Emulate authentic DSLR studio lighting: soft key light, rim lighting, realistic shadow falloff. Skin: preserve natural pores and texture. Enhance quality ONLY moderately.';scp(n===1?p1:p2,'تم نسخ البرومبت');}
+function cpP(n){const p1='ـــــ';const p2='Transform this phone-camera portrait into an ultra-realistic professional studio photograph while preserving the subject’s EXACT real-world identity with ZERO facial alteration tolerance.
+
+NON-NEGOTIABLE RULE:
+Under absolutely no circumstances may the face, identity, facial anatomy, or recognizable characteristics be changed, reinterpreted, regenerated, beautified, or approximated.
+
+The MOST IMPORTANT objective is identity fidelity.
+Image enhancement quality is SECONDARY.
+If enhancement conflicts with facial accuracy, ALWAYS preserve the original face exactly.
+
+The final result must look IDENTICAL to the real person in the source image:
+same human,
+same face,
+same anatomy,
+same imperfections,
+same proportions,
+same expression,
+same recognizable identity.
+
+This is NOT a face generation task.
+This is ONLY a professional photographic enhancement and relighting task.
+
+DO NOT create:
+
+- a “better-looking” version,
+- a cleaner interpretation,
+- an AI-generated resemblance,
+- a beautified reconstruction,
+- a synthetic recreation,
+- a face inspired by the original,
+- a lookalike,
+- a stylized adaptation.
+
+The output must remain 100% faithful to the original facial data.
+
+STRICTLY PRESERVE:
+
+- exact skull and bone structure,
+- exact face geometry,
+- exact eye shape, angle, spacing, size, and eyelid form,
+- exact iris positioning and gaze direction,
+- exact eyebrow shape, thickness, spacing, and asymmetry,
+- exact nose bridge, nostrils, width, tip shape, and proportions,
+- exact lip shape, lip volume, corners, and mouth proportions,
+- exact jawline and chin structure,
+- exact cheek structure and facial fat distribution,
+- exact forehead proportions,
+- exact ear shape and placement if visible,
+- exact hairline and hair growth pattern,
+- exact skin tone and undertones,
+- exact facial asymmetries,
+- exact expression and facial muscle tension,
+- exact wrinkles, pores, lines, and texture,
+- all distinctive recognizable features and imperfections.
+
+ABSOLUTELY FORBIDDEN:
+
+- changing facial proportions,
+- modifying anatomy,
+- changing head shape,
+- changing eye size,
+- changing nose shape,
+- changing mouth shape,
+- sharpening jawline,
+- slimming face,
+- enlarging eyes,
+- altering facial symmetry,
+- beautification,
+- glamour retouching,
+- makeup effects,
+- skin replacement,
+- artificial smoothing,
+- CGI skin,
+- synthetic symmetry,
+- de-aging,
+- age modification,
+- ethnicity shifting,
+- hairstyle redesign,
+- expression alteration,
+- “AI beauty” aesthetics,
+- identity drift of any kind.
+
+The source image must remain visually traceable and unmistakably identical to the original person at first glance.
+
+Treat the original image as locked identity reference data.
+The face must be preserved with forensic-level accuracy.
+
+The result should feel like:
+“the exact same original photo captured with expensive professional studio equipment”
+NOT:
+“an AI-generated version of the person.”
+
+Background:
+Replace the background with a clean pure-white professional photography studio backdrop.
+
+Composition:
+Preserve the original camera angle, lens perspective, framing logic, posture, and body proportions exactly.
+
+If the original framing is too tight, only extend naturally to realistic shoulders and upper torso while maintaining:
+
+- anatomical accuracy,
+- clothing continuity,
+- body proportions,
+- perspective consistency,
+- original pose integrity.
+
+Lighting:
+Use authentic premium DSLR studio lighting with extremely natural behavior:
+
+- soft diffused key light,
+- subtle balanced fill light,
+- delicate rim lighting around hair and shoulders,
+- realistic facial contour lighting,
+- gentle natural shadow transitions,
+- authentic eye catchlights,
+- realistic depth without dramatic contrast.
+
+Lighting must remain subtle and believable:
+
+- NO HDR,
+- NO glowing highlights,
+- NO fantasy lighting,
+- NO excessive cinematic grading,
+- NO artificial shine,
+- NO overexposure,
+- NO exaggerated contrast,
+- NO stylized color grading.
+
+Skin rendering:
+Maintain highly realistic human skin:
+
+- preserve pores,
+- preserve natural texture,
+- preserve fine details,
+- preserve authentic imperfections,
+- preserve natural skin transitions,
+- preserve realistic skin roughness.
+
+Avoid:
+
+- plastic skin,
+- over-retouching,
+- excessive denoising,
+- oversharpening,
+- beauty filtering,
+- waxy textures,
+- AI upscaling artifacts.
+
+Enhancement strength must remain conservative and restrained:
+
+- lightly reduce phone-camera noise,
+- slightly improve clarity,
+- improve lighting realism,
+- maintain authentic texture,
+- preserve natural DSLR realism.
+
+The final image must be indistinguishable from a genuine professionally photographed studio portrait while remaining COMPLETELY faithful to the original human identity with zero noticeable facial deviation.';scp(n===1?p1:p2,'تم نسخ البرومبت');}
 
 function showOv(m,p){let ov=document.getElementById('_ov');if(!ov){ov=document.createElement('div');ov.id='_ov';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:inherit;direction:rtl';ov.innerHTML='<div style="font-size:32px">⏳</div><div id="_ovm" style="color:#fff;font-size:13px;text-align:center;max-width:250px;line-height:1.7"></div><div style="width:200px;height:4px;background:#222;border-radius:2px;overflow:hidden"><div id="_ovb" style="height:100%;background:#c9a84c;border-radius:2px;transition:width .4s;width:0%"></div></div>';document.body.appendChild(ov);}document.getElementById('_ovm').innerText=m;document.getElementById('_ovb').style.width=p+'%';}
 function hideOv(){const o=document.getElementById('_ov');if(o)o.remove();}
